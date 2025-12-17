@@ -265,7 +265,7 @@ export const useStore = create<AppState>((set) => {
         addWord: (item) => set((state) => ({ sentence: [...state.sentence, item] })),
         clearSentence: () => set({ sentence: [] }),
         removeWord: (index) => set((state) => ({
-            sentence: state.sentence.filter((_, i) => i !== index)
+            sentence: state.sentence.filter((_i, i) => i !== index)
         })),
 
         removeLastWord: () => set((state) => ({
@@ -279,7 +279,8 @@ export const useStore = create<AppState>((set) => {
         }),
 
         resetUserOverride: (originalId) => set((state) => {
-            const { [originalId]: _, ...rest } = state.userOverrides;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { [originalId]: _discard, ...rest } = state.userOverrides;
             saveOverrides(rest);
             return { userOverrides: rest };
         }),
@@ -324,7 +325,8 @@ export const useStore = create<AppState>((set) => {
         removeTab: (id, type = 'vocabulary') => set((state) => {
             if (type === 'vocabulary') {
                 const newTabs = state.tabs.filter(t => t.id !== id);
-                const { [id]: _, ...newContent } = state.tabContent;
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { [id]: _discard, ...newContent } = state.tabContent;
                 saveTabs(newTabs, 'tlc_tabs');
                 saveTabContent(newContent, 'tlc_tab_content');
 
@@ -332,7 +334,8 @@ export const useStore = create<AppState>((set) => {
                 return { tabs: newTabs, tabContent: newContent, activeTabId: newActive };
             } else {
                 const newTabs = state.phraseTabs.filter(t => t.id !== id);
-                const { [id]: _, ...newContent } = state.phraseContent;
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { [id]: _discard, ...newContent } = state.phraseContent;
                 saveTabs(newTabs, 'tlc_phrase_tabs');
                 saveTabContent(newContent, 'tlc_phrase_content');
 

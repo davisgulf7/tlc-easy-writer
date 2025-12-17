@@ -16,7 +16,7 @@ export const SentenceBar: React.FC = () => {
     // Enhanced responsive font logic: even smaller on mobile if needed
     const fontSizeClass = totalChars > 50 ? 'text-base sm:text-lg' : totalChars > 30 ? 'text-lg sm:text-xl' : 'text-xl sm:text-3xl';
 
-    const speak = (text: string) => {
+    const speak = React.useCallback((text: string) => {
         if (!text) return;
 
         // Cancel any ongoing speech
@@ -56,7 +56,7 @@ export const SentenceBar: React.FC = () => {
         };
 
         window.speechSynthesis.speak(utterance);
-    };
+    }, [ttsConfig]);
 
     const handleSpeakClick = () => {
         speak(displayString);
@@ -69,7 +69,7 @@ export const SentenceBar: React.FC = () => {
             const timer = setTimeout(() => speak(displayString), 500);
             return () => clearTimeout(timer);
         }
-    }, [displayString]);
+    }, [displayString, speak]);
 
     // Cleanup
     React.useEffect(() => {

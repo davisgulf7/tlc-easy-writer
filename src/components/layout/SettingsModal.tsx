@@ -252,7 +252,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                                     } else {
                                                         alert("Invalid profile file.");
                                                     }
-                                                } catch (err) {
+                                                } catch {
                                                     alert("Error reading file.");
                                                 }
                                             };

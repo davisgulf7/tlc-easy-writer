@@ -1,6 +1,6 @@
 import { constructSentence } from './GrammarEngine';
 import { subjects, verbs, objects, qualifiers } from './initialVocabulary';
-import type { VocabularyItem } from './types';
+import type { VocabularyItem, ObjectItem, QualifierItem } from './types';
 
 // Helper to find items by partial ID or Label for easier testing
 const get = (idPart: string) => {
@@ -31,7 +31,7 @@ const scenarios: { name: string, items: VocabularyItem[] }[] = [
         items: [
             get('s_i'),
             get('v_want'),
-            { ...get('o_ball'), id: 'o_apple', label: 'apple', articlePolicy: 'auto_indefinite' } as any
+            { ...get('o_ball'), id: 'o_apple', label: 'apple', articlePolicy: 'auto_indefinite' } as ObjectItem
         ]
     },
     {
@@ -45,7 +45,7 @@ const scenarios: { name: string, items: VocabularyItem[] }[] = [
             get('s_i'),
             get('v_want'),
             get('o_ball'),
-            { ...get('q_big'), id: 'q_orange', label: 'orange' } as any
+            { ...get('q_big'), id: 'q_orange', label: 'orange' } as QualifierItem
         ]
     },
     {

@@ -43,6 +43,7 @@ export const EditorModal: React.FC = () => {
     const [libraryTab, setLibraryTab] = useState<'system' | 'user'>('system');
 
     // Populate form when editingItem changes
+    // Populate form when editingItem changes
     useEffect(() => {
         if (editingItem) {
             setLabel(editingItem.label);
@@ -122,7 +123,7 @@ export const EditorModal: React.FC = () => {
             newItem = {
                 ...baseItem,
                 type: 'phrase'
-            } as any; // Avoid type merging complexity for now or import PhraseItem but VocabularyItem has it
+            } as VocabularyItem; // proper casting
         } else {
             newItem = {
                 ...baseItem,
@@ -321,7 +322,7 @@ export const EditorModal: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl">
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1">Person</label>
-                                <select value={person} onChange={e => setPerson(e.target.value as any)} className="w-full p-2 rounded-lg border">
+                                <select value={person} onChange={e => setPerson(e.target.value as '1' | '2' | '3')} className="w-full p-2 rounded-lg border">
                                     <option value="1">1st (I/We)</option>
                                     <option value="2">2nd (You)</option>
                                     <option value="3">3rd (He/She/It/They)</option>
@@ -329,7 +330,7 @@ export const EditorModal: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1">Number</label>
-                                <select value={number} onChange={e => setNumber(e.target.value as any)} className="w-full p-2 rounded-lg border">
+                                <select value={number} onChange={e => setNumber(e.target.value as 'sg' | 'pl')} className="w-full p-2 rounded-lg border">
                                     <option value="sg">Singular</option>
                                     <option value="pl">Plural</option>
                                 </select>
@@ -355,7 +356,7 @@ export const EditorModal: React.FC = () => {
                     {editingItem.type === 'object' && (
                         <div className="p-4 bg-slate-50 rounded-xl">
                             <label className="block text-xs font-bold text-slate-500 mb-1">Article Policy</label>
-                            <select value={articlePolicy} onChange={e => setArticlePolicy(e.target.value as any)} className="w-full p-2 rounded-lg border">
+                            <select value={articlePolicy} onChange={e => setArticlePolicy(e.target.value as 'auto_indefinite' | 'definite' | 'none')} className="w-full p-2 rounded-lg border">
                                 <option value="auto_indefinite">Auto (a/an)</option>
                                 <option value="definite">Definite (the)</option>
                                 <option value="none">None (Mass noun)</option>
