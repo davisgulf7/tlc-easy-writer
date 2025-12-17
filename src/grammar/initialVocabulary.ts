@@ -1,19 +1,19 @@
 import type { SubjectItem, VerbItem, QualifierItem, ObjectItem, VocabularyItem } from './types';
-import iIcon from '../assets/symbols/I.png';
-import youIcon from '../assets/symbols/You.png';
+import iIcon from '../assets/symbols/i.png';
+import youIcon from '../assets/symbols/you.png';
 import weIcon from '../assets/symbols/we.png';
-import myMomIcon from '../assets/symbols/my mom.png';
-import myDadIcon from '../assets/symbols/my dad.png';
-import myFriendIcon from '../assets/symbols/my friend.png';
-import myTeacherIcon from '../assets/symbols/my teacher.png';
-import myDogIcon from '../assets/symbols/my dog.png';
-import myBrotherIcon from '../assets/symbols/my brother.png'; // No existing file in list? Checked list: "my brother.png" exists
-import mySisterIcon from '../assets/symbols/my sister.png';
-import myClassIcon from '../assets/symbols/my class.png';
-import myBabyIcon from '../assets/symbols/my baby.svg';
+import myMomIcon from '../assets/symbols/my_mom.png';
+import myDadIcon from '../assets/symbols/my_dad.png';
+import myFriendIcon from '../assets/symbols/my_friend.png';
+import myTeacherIcon from '../assets/symbols/my_teacher.png';
+import myDogIcon from '../assets/symbols/my_dog.png';
+import myBrotherIcon from '../assets/symbols/my_brother.png';
+import mySisterIcon from '../assets/symbols/my_sister.png';
+import myClassIcon from '../assets/symbols/my_class.png';
+import myBabyIcon from '../assets/symbols/my_baby.svg';
 
 import likeIcon from '../assets/symbols/like.svg';
-import dontLikeIcon from '../assets/symbols/don\'t like.svg';
+import dontLikeIcon from '../assets/symbols/dont_like.svg';
 import wantIcon from '../assets/symbols/want.png';
 import loveIcon from '../assets/symbols/love.svg';
 import needIcon from '../assets/symbols/need.png';
@@ -47,22 +47,22 @@ import pizzaIcon from '../assets/symbols/pizza.png';
 import playgroundIcon from '../assets/symbols/playground.png';
 import schoolIcon from '../assets/symbols/school.png';
 import gamesIcon from '../assets/symbols/games.png';
-import iceCreamIcon from '../assets/symbols/ice cream.png';
+import iceCreamIcon from '../assets/symbols/ice_cream.png';
 import tabletIcon from '../assets/symbols/tablet.png';
 import carsIcon from '../assets/symbols/cars.png';
 
 import yesIcon from '../assets/symbols/yes.png';
 import noIcon from '../assets/symbols/no.png';
-import iNeedHelpIcon from '../assets/symbols/i need help.png';
-import iLikeThatIcon from '../assets/symbols/i like that.png';
-import iDontLikeThatIcon from '../assets/symbols/i don\'t like that.png';
+import iNeedHelpIcon from '../assets/symbols/i_need_help.png';
+import iLikeThatIcon from '../assets/symbols/i_like_that.png';
+import iDontLikeThatIcon from '../assets/symbols/i_dont_like_that.png';
 import stopIcon from '../assets/symbols/stop.png';
-import iWantIcon from '../assets/symbols/i want.png';
+import iWantIcon from '../assets/symbols/i_want.png';
 import bathroomIcon from '../assets/symbols/bathroom.png';
-import iAmHungryIcon from '../assets/symbols/i am hungry.png';
-import iAmThirstyIcon from '../assets/symbols/i am thirsty.png';
-import iAmTiredIcon from '../assets/symbols/i am tired.png';
-import inPainIcon from '../assets/symbols/In pain.png';
+import iAmHungryIcon from '../assets/symbols/i_am_hungry.png';
+import iAmThirstyIcon from '../assets/symbols/i_am_thirsty.png';
+import iAmTiredIcon from '../assets/symbols/i_am_tired.png';
+import inPainIcon from '../assets/symbols/in_pain.png';
 
 
 // --- Subjects ---
