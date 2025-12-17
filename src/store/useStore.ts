@@ -11,22 +11,7 @@ export interface Tab {
 
 type TabContentMap = Record<string, VocabularyItem[]>;
 
-// Initial Phrase Data
-const INITIAL_PHRASES: VocabularyItem[] = [
-    { id: 'p_yes', label: 'Yes', type: 'phrase', level: 1 },
-    { id: 'p_no', label: 'No', type: 'phrase', level: 1 },
-    { id: 'p_help', label: 'I need help', type: 'phrase', level: 1 },
-    { id: 'p_like', label: 'I like that', type: 'phrase', level: 1 },
-    { id: 'p_dontlike', label: 'I don\'t like that', type: 'phrase', level: 1 },
-    { id: 'p_stop', label: 'Stop', type: 'phrase', level: 1 },
-    { id: 'p_want', label: 'I want', type: 'phrase', level: 1 },
-    { id: 'p_bathroom', label: 'Bathroom', type: 'phrase', level: 1 },
-    // Level 2 Additions
-    { id: 'p_hungry', label: 'I am hungry', type: 'phrase', level: 2 },
-    { id: 'p_thirsty', label: 'I am thirsty', type: 'phrase', level: 2 },
-    { id: 'p_tired', label: 'I am tired', type: 'phrase', level: 2 },
-    { id: 'p_pain', label: 'In pain', type: 'phrase', level: 2 },
-];
+import { phrases } from '../grammar/initialVocabulary';
 
 // --- Config Interfaces ---
 export interface TTSConfig {
@@ -56,7 +41,7 @@ const DEFAULT_TTS: TTSConfig = {
 
 const DEFAULT_THEME: ThemeConfig = {
     mode: 'liquid', // kept for structure, though UI only uses flat now
-    backgroundColor: '#01033c', // Dark Navy default
+    backgroundColor: '#01056f', // Deep Blue default
     categoryColors: {
         subject: '#FACC15',  // Who (Yellow)
         verb: '#4ADE80',     // Action (Green)
@@ -202,8 +187,8 @@ const loadOverrides = (): Record<string, VocabularyItem> => {
 const loadTabs = (key = 'tlc_tabs'): Tab[] => {
     try {
         const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : [{ id: 'core', label: 'Phrases', isRemovable: false }];
-    } catch { return [{ id: 'core', label: 'Phrases', isRemovable: false }]; }
+        return stored ? JSON.parse(stored) : [{ id: 'core', label: 'Main', isRemovable: false }];
+    } catch { return [{ id: 'core', label: 'Main', isRemovable: false }]; }
 };
 
 const loadTabContent = (key = 'tlc_tab_content', defaultContent = {}): TabContentMap => {
@@ -233,7 +218,7 @@ export const useStore = create<AppState>((set) => {
         // Phrase Mode
         phraseTabs: loadTabs('tlc_phrase_tabs'),
         activePhraseTabId: 'core',
-        phraseContent: loadTabContent('tlc_phrase_content', { 'core': INITIAL_PHRASES }),
+        phraseContent: loadTabContent('tlc_phrase_content', { 'core': phrases }),
 
         // Configuration
         ttsConfig: loadTTS(),
@@ -470,10 +455,10 @@ export const useStore = create<AppState>((set) => {
             // Reload from code defaults
             return {
                 userOverrides: {},
-                tabs: [{ id: 'core', label: 'Core', isRemovable: false }],
+                tabs: [{ id: 'core', label: 'Main', isRemovable: false }],
                 tabContent: {},
                 phraseTabs: [{ id: 'core', label: 'Phrases', isRemovable: false }],
-                phraseContent: { 'core': INITIAL_PHRASES },
+                phraseContent: { 'core': phrases },
                 ttsConfig: DEFAULT_TTS,
                 themeConfig: DEFAULT_THEME,
                 activeTabId: 'core',

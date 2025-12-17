@@ -4,7 +4,7 @@ import { useStore } from '../../store/useStore';
 import type { Role } from '../../grammar/types';
 
 export const ControlBar: React.FC = () => {
-    const { activeRole, setRole } = useStore();
+    const { activeRole, setRole, viewMode } = useStore();
 
     const roles: { id: Role, label: string, color: string }[] = [
         { id: 'subject', label: 'Who', color: 'bg-subject' },
@@ -20,24 +20,29 @@ export const ControlBar: React.FC = () => {
                     {roles.map((role) => (
                         <button
                             key={role.id}
-                            onClick={() => setRole(role.id)}
+                            onClick={() => viewMode !== 'phrases' && setRole(role.id)}
                             className={clsx(
                                 // Base styles: flex layout
-                                "relative flex items-stretch rounded-xl font-bold shadow-sm transition-all active:scale-95 overflow-hidden",
+                                "relative flex items-stretch rounded-xl font-bold shadow-sm transition-all overflow-hidden",
                                 // Sizing: height adapts
                                 "h-14 sm:h-16",
                                 role.color,
                                 "text-white",
-                                activeRole === role.id
-                                    ? "ring-4 ring-offset-2 ring-slate-300 scale-[1.02] z-10"
-                                    : "opacity-90 hover:opacity-100 hover:scale-[1.01]"
+                                viewMode === 'phrases'
+                                    ? "opacity-40 saturate-50 cursor-default" // Disabled State
+                                    : activeRole === role.id
+                                        ? "ring-4 ring-offset-2 ring-slate-300 scale-[1.02] z-10"
+                                        : "opacity-90 hover:opacity-100 hover:scale-[1.01] active:scale-95 cursor-pointer" // Standard State
                             )}
                         >
                             {/* 1/3 Icon Area */}
                             {/* 1/3 Icon Area - Solid White */}
                             <div className="w-1/3 flex items-center justify-center bg-white border-r-2 border-black/10">
                                 {/* Placeholder Circle for Icon - Colored text to match category? Or just simple? */}
-                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shadow-inner text-slate-400">
+                                <div className={clsx(
+                                    "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shadow-inner text-slate-400 transition-opacity",
+                                    viewMode === 'phrases' && "opacity-50"
+                                )}>
                                     <span className="text-xs opacity-50">★</span>
                                 </div>
                             </div>
