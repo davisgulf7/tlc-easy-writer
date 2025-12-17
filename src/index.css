@@ -134,3 +134,16 @@ div[data-mode="high-contrast"] {
   --theme-qualifier-light: color-mix(in srgb, var(--theme-qualifier-light), black 40%);
   --theme-qualifier-dark: color-mix(in srgb, var(--theme-qualifier-dark), black 40%);
 }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}

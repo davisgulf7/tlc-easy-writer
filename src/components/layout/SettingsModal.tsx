@@ -47,13 +47,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </button>
                     </div>
 
-                    <div className="flex px-6 gap-6">
+                    <div className="flex px-6 gap-6 overflow-x-auto no-scrollbar scroll-smooth">
                         {(['general', 'profiles', 'speech', 'appearance', 'credits'] as const).map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={clsx(
-                                    "pb-3 text-sm font-bold capitalize transition-colors border-b-2",
+                                    "pb-3 text-sm font-bold capitalize transition-colors border-b-2 whitespace-nowrap flex-shrink-0",
                                     activeTab === tab
                                         ? "text-blue-600 border-blue-600"
                                         : "text-slate-400 border-transparent hover:text-slate-600"
