@@ -106,6 +106,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                     <span>⚠️</span> Reset App to Default
                                 </button>
                             </section>
+
+                            {/* Quit App */}
+                            <div className="flex justify-end pt-4 border-t border-slate-200 mt-auto">
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm("Are you sure you want to quit?")) {
+                                            window.close();
+                                        }
+                                    }}
+                                    className="px-4 py-2 text-slate-400 hover:text-red-500 font-bold text-sm bg-transparent hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+                                >
+                                    <span>🚪</span> Quit App
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -431,6 +445,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
