@@ -113,11 +113,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                     onClick={() => {
                                         if (window.confirm("Are you sure you want to quit?")) {
                                             window.close();
+                                            // Fallback for browsers that block close()
+                                            setTimeout(() => {
+                                                window.location.href = "about:blank";
+                                            }, 100);
                                         }
                                     }}
-                                    className="px-4 py-2 text-slate-400 hover:text-red-500 font-bold text-sm bg-transparent hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+                                    className="px-8 py-4 text-slate-400 hover:text-white hover:bg-red-500 font-bold text-xl rounded-xl transition-all flex items-center justify-center border-2 border-transparent hover:border-red-600 shadow-sm"
                                 >
-                                    <span>🚪</span> Quit App
+                                    Quit
                                 </button>
                             </div>
                         </div>
