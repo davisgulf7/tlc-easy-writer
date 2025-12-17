@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@theme {
+  /* Subject Blue */
+  --color-subject: var(--theme-subject);
+  --color-subject-light: var(--theme-subject-light);
+  --color-subject-dark: var(--theme-subject-dark);
+
+  /* Verb Green */
+  --color-verb: var(--theme-verb);
+  --color-verb-light: var(--theme-verb-light);
+  --color-verb-dark: var(--theme-verb-dark);
+
+  /* Qualifier Orange */
+  --color-qualifier: var(--theme-qualifier);
+  --color-qualifier-light: var(--theme-qualifier-light);
+  --color-qualifier-dark: var(--theme-qualifier-dark);
+
+  /* Object Yellow */
+  --color-object: var(--theme-object);
+  --color-object-light: var(--theme-object-light);
+  --color-object-dark: var(--theme-object-dark);
+}
+
+:root {
+  /* Default Values (Mirroring original hexes) */
+  /* Subject (Who) */
+  --theme-subject: #f0e800;
+  --theme-subject-light: color-mix(in srgb, var(--theme-subject), white 20%);
+  --theme-subject-dark: color-mix(in srgb, var(--theme-subject), black 20%);
+
+  /* Verb (Action) */
+  --theme-verb: #f07fc1;
+  --theme-verb-light: color-mix(in srgb, var(--theme-verb), white 20%);
+  --theme-verb-dark: color-mix(in srgb, var(--theme-verb), black 20%);
+
+  /* Qualifier (Describe) */
+  --theme-qualifier: #372af4;
+  --theme-qualifier-light: color-mix(in srgb, var(--theme-qualifier), white 20%);
+  --theme-qualifier-dark: color-mix(in srgb, var(--theme-qualifier), black 20%);
+
+  /* Object (What) */
+  --theme-object: #d39103;
+  --theme-object-light: color-mix(in srgb, var(--theme-object), white 20%);
+  --theme-object-dark: color-mix(in srgb, var(--theme-object), black 20%);
+}
+
+html,
+body,
+#root {
+  @apply h-full w-full m-0 p-0;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+}
+
+/* Default Button Styles */
+button {
+  @apply !shadow-none;
+  border-radius: 0.5rem !important;
+}
+
+/* Ensure rounded corners on containers */
+.rounded-2xl {
+  border-radius: 0.5rem !important;
+}
+
+/* Explicit Dynamic Color Utilities to bypass Tailwind Theme issues */
+.bg-subject {
+  background-color: var(--theme-subject) !important;
+}
+
+.bg-verb {
+  background-color: var(--theme-verb) !important;
+}
+
+.bg-qualifier {
+  background-color: var(--theme-qualifier) !important;
+}
+
+.bg-object {
+  background-color: var(--theme-object) !important;
+}
+
+.border-subject {
+  border-color: var(--theme-subject) !important;
+}
+
+.border-verb {
+  border-color: var(--theme-verb) !important;
+}
+
+.border-qualifier {
+  border-color: var(--theme-qualifier) !important;
+}
+
+.border-object {
+  border-color: var(--theme-object) !important;
+}
+
+.text-subject {
+  color: var(--theme-subject) !important;
+}
+
+.text-verb {
+  color: var(--theme-verb) !important;
+}
+
+.text-qualifier {
+  color: var(--theme-qualifier) !important;
+}
+
+.text-object {
+  color: var(--theme-object) !important;
+}
+
+/* Theme Modes */
+div[data-mode="high-contrast"] {
+  /* Darken category colors by mixing with black (50%) */
+  --theme-subject: color-mix(in srgb, var(--theme-subject), black 40%);
+  --theme-subject-light: color-mix(in srgb, var(--theme-subject-light), black 40%);
+  --theme-subject-dark: color-mix(in srgb, var(--theme-subject-dark), black 40%);
+
+  --theme-verb: color-mix(in srgb, var(--theme-verb), black 40%);
+  --theme-verb-light: color-mix(in srgb, var(--theme-verb-light), black 40%);
+  --theme-verb-dark: color-mix(in srgb, var(--theme-verb-dark), black 40%);
+
+  --theme-object: color-mix(in srgb, var(--theme-object), black 40%);
+  --theme-object-light: color-mix(in srgb, var(--theme-object-light), black 40%);
+  --theme-object-dark: color-mix(in srgb, var(--theme-object-dark), black 40%);
+
+  --theme-qualifier: color-mix(in srgb, var(--theme-qualifier), black 40%);
+  --theme-qualifier-light: color-mix(in srgb, var(--theme-qualifier-light), black 40%);
+  --theme-qualifier-dark: color-mix(in srgb, var(--theme-qualifier-dark), black 40%);
+}

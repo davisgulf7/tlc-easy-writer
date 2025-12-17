@@ -1,0 +1,796 @@
+Ah, Dr. Peet’s Picture Writer — that takes me back. Lovely bit of early AAC design. If we treat the four columns grammatically, you’ve got:
+	•	Subject — pronouns and agents (“I,” “me,” “my,” etc.)
+	•	Predicate base / feeling verb — emotional or evaluative verbs (“like,” “don’t like,” “want,” “need”)
+	•	State or qualifier — that missing column of faces, which likely expressed how or what state the subject was in (emotion, intensity, or modality)
+	•	Object / complement — the concrete noun or activity (“pizza,” “music,” “ball,” etc.)
+If we break “I like quiet sailboats” down grammatically:
+	•	Column 1: Subject → I
+	•	Column 2: Verb → like
+	•	Column 3: Adjective modifier → quiet
+	•	Column 4: Object → sailboats
+So that third column is functioning as an adjectival descriptor of the object — not the subject, but the thing being liked, wanted, or noticed. In linguistic terms, it’s an object modifier (a pre-nominal adjective) — part of the noun phrase that completes the predicate.
+This is actually quite elegant for an AAC design, because it allowed nuanced, grammatically natural output without complicating the interface.
+
+Functionally, then:
+Column
+Role
+Example Words/Phrases
+1️⃣ Subject
+Noun/Pronoun
+I, You, We, My friend
+2️⃣ Predicate
+Verb/Feeling
+like, want, see, have
+3️⃣ Modifier
+Adjective (object descriptor)
+quiet, big, red, funny, sweet, loud
+4️⃣ Object
+Noun (thing/activity)
+sailboats, pizza, dog, music, playground
+
+Why it works in communication design
+	•	It keeps sentence order natural for English learners.
+	•	It supports semantic expansion (user can say “I like big trucks” or “I see red apples”).
+	•	It introduces attribute vocabulary — vital for language development and AAC users.
+
+If you’re modernising this, you might consider having Column 3 be context-aware — i.e., when you pick an item in Column 4, it filters Column 3 adjectives to relevant ones (e.g., foods → “sweet,” “salty”; toys → “fun,” “noisy”). That keeps the interface cognitively clean while maintaining grammatical integrity.
+Would you like me to map out a prototype vocabulary grid (say, 10 adjectives × 10 objects) that fits this logic and could serve as a starter dataset?
+Yes, that makes perfect sense — and it’s shaping into a genuinely elegant modern reimagining of Picture Writer. You’re describing what I’d call a modal-branching communication interface, which keeps the syntactic scaffolding (the four sentence parts) stable while allowing semantic expansion through layered modals. It’s cognitively predictable, but visually deep.
+Let’s break it down and then explore some alternate interface pathways.
+
+🧩 Core Structure — What You’ve Described
+Top layer (sentence builder):
+	•	A read-aloud bar showing the sentence being constructed (“I like quiet sailboats”).
+	•	Each word/phrase appears in a capsule bubble that can be tapped to edit or replace.
+	•	A single “Speak” button triggers TTS playback of the entire sentence.
+Below that — four fixed “role” icons:
+Role
+Icon
+Function
+Subject
+👤
+Opens modal with pronouns / agents
+Verb
+❤️
+Opens modal with feelings / verbs
+Qualifier
+🎨
+Opens modal to select categories or direct adjectives
+Object
+🧸
+Opens modal with categories (food, toys, etc.)
+Each modal looks like a small communication board—8 to 12 tiles, large touch targets, colour-coded by grammatical role.
+You’re right: the beginner → advanced progression is best done through “complexity levels”:
+	•	Level 1 (Core): ≤8 total per category, no subcategories.
+	•	Level 2 (Grouped): qualifiers & objects show top-level semantic categories before details.
+	•	Level 3 (Expanded): introduces advanced words, plurals, conjunctions (“and,” “but”), maybe short pronoun phrases (“my brother,” “our teacher”).
+This ensures scalability without changing layout—so motor and visual habits transfer across levels.
+
+🔄 Alternate Interface Models to Consider
+1. Carousel Popover (instead of deep modals)
+When a user taps a column icon, instead of a full modal overlay, a horizontal carousel expands just above that column. It keeps everything visible on one screen, ideal for eye-gaze or switch-access users. Each category (like “Sound” or “Color”) can be scrolled sideways, and tapping closes it back into the main board.
+Pros: Less screen change, more spatial memory. Cons: Slightly more cramped for icon clarity.
+
+2. Grid + Floating Category Dock
+The bottom third of the screen could host a floating category dock that changes based on the active role.
+	•	Tap “Qualifier” → dock shows nine category icons (sound, colour, size…).
+	•	Tap one → grid above fills with adjective options. This mimics the structure of AAC tools like Proloquo2Go or TouchChat, but simpler.
+Pros: Very predictable, supports motor learning. Cons: Slightly more UI complexity in programming transitions.
+
+3. Step-Through Sentence Builder
+A linear, full-screen “wizard mode”: Each tap advances the sentence (“Choose who…” → “Choose feeling…” → “Choose quality…” → “Choose object…”). Visual breadcrumbs at the top show progress (1–4). Perfect for users overwhelmed by multiple options.
+Pros: Least visual clutter, ideal for first-time or low-support users. Cons: Less freedom to revise earlier choices quickly.
+
+4. Split Mode for Dual Input
+A split screen option for dyadic use (therapist + learner):
+	•	Left half: adult/teacher “coach view” (shows possible next steps).
+	•	Right half: user-facing touch area. This supports modelling and aided language stimulation sessions.
+
+🧠 Cognitive Design Strengths of Your Approach
+	•	Predictable sentence rhythm (always four beats → subject, verb, quality, object).
+	•	Visual reinforcement of grammar roles via colour, icon, or border shape.
+	•	Modal or layered design keeps screen uncluttered but allows depth on demand.
+	•	“Complexity level” can tie directly to a learner profile — not just number of options, but semantic granularity.
+
+🌱 Optional Smart Features (Future-Forward)
+	•	Auto-pronoun adjustment: once “my friend” is chosen, verb form switches (“likes”).
+	•	Adjective memory: system remembers favourite pairings (“quiet + sailboats”) and floats them to top.
+	•	Category prediction: not forced, but highlighted; e.g., “tasty” lights up when “food” is the chosen object.
+	•	Symbol overlay library options: PCS / Widgit / ARASAAC toggles for accessibility and localisation.
+
+You’re designing what could easily become the modern universal AAC starter app—simple enough for first use, flexible enough for lifelong communication.
+Would you like me to diagram these interface options (top-bar layout + modal flow + carousel alternative) in a simple visual wireframe next? It’d help crystallise which variant feels right before we move into Stage 3’s grammar logic.
+That actually sounds spot-on, David — clean, logical, and cognitively elegant. You’ve kept the visual rhythm that Picture Writer users remember, but re-framed it for modern accessibility design. Let’s unpack why it works and where it could evolve just a touch further.
+
+✅ What You’ve Nailed
+1. Hierarchical clarity without clutter. Three visual “bands” — sentence area → controls → grammar icons → dynamic board — is exactly the kind of consistent spatial hierarchy AAC users rely on. The brain knows where to look before it knows what to choose.
+2. Predictable interaction pattern. Every edit happens through the same gesture: tap a role icon → choose from the board. That’s ideal for motor planning and switch access.
+3. Scalable complexity. Level 1–3 progression is beautifully intuitive. The extra row of category icons at Level 3 acts as an “advanced lens” rather than a structural change, so visual continuity stays intact.
+4. Effortless repair and play. The Undo and Clear controls sitting between sentence and icons are cognitively “proximal” — users can see the result of their action immediately.
+
+🔧 Refinements to Consider
+• Read bar layout: Place the Speak icon at the far right of the text bar, but make the whole bar tappable for reading the sentence aloud. (Large motor target; good redundancy.)
+• Colour and shape cues: Give each of the four grammar icons a distinctive shape as well as colour (circle, square, triangle, diamond). It helps colour-blind users and builds implicit grammar recognition.
+• Matrix population animation: When a user taps a main icon, fade the matrix content in with a quick slide-up or bounce. That tiny bit of motion teaches cause-and-effect.
+• Category row at Level 3: You could grey-out unused categories until the user taps one of the four main icons — a subtle cue that those categories relate to the current grammatical role.
+• Optional “hear on hover.” Every matrix square could play a short audio label when touched once and select on the second tap — nice for mixed-ability groups.
+
+💡 Example Flow
+	•	User taps 🎨 Qualifier.
+	•	Board populates with 8 adjective tiles (Level 1).
+	•	User taps “quiet” → it appears in the sentence bar.
+	•	Tap 🧸 Object → matrix refreshes to object options.
+	•	“Sailboat” chosen → sentence completes.
+	•	Tap 🔊 Speak → reads aloud.
+	•	Tap Undo → removes last word.
+	•	Tap Clear → empties the whole bar.
+Simple, teachable, endlessly expandable.
+
+If you’d like, I can sketch this exact layout as a wireframe v2—showing the top bar, control placement, grammar icon row, and matrix in proportion, with annotations for Level 1–3 variations. Shall I go ahead and do that?
+Excellent — you’re thinking in exactly the right structure. Let’s treat this as the core vocabulary bank for Picture Writer v1–2 — concrete, age-appropriate, emotionally meaningful, and visually depictable. Each column progresses gently from universal core words (Level 1) to early-expansion concepts (Level 2).
+
+🧩 Example Matrices
+1️⃣ SUBJECTS (Agents / Pronouns / Familiar Nouns)
+Level
+Word/Phrase
+Notes
+1
+I
+self-referential starter
+1
+You
+conversational partner
+1
+We
+inclusion / group sense
+1
+My mom
+family anchor
+1
+My dad
+family anchor
+1
+My friend
+peer / social
+1
+My teacher
+authority figure
+1
+My dog
+pet / emotional link
+2
+My brother
+sibling vocab
+2
+My sister
+sibling vocab
+2
+My class
+group identity
+2
+My baby
+caregiving concept
+
+2️⃣ VERBS / FEELINGS (Predicate)
+Level
+Word/Phrase
+Notes
+1
+like
+foundational positive
+1
+don’t like
+foundational negative
+1
+love
+strong positive
+1
+want
+desire / motivation
+1
+need
+necessity concept
+1
+have
+possession
+1
+see
+sensory
+1
+hear
+sensory
+2
+eat
+action / routine
+2
+play
+action / recreation
+2
+go
+movement
+2
+make
+creativity / agency
+
+3️⃣ QUALIFIERS (Adjectives / Object Descriptors)
+Level
+Word/Phrase
+Notes
+1
+big
+size
+1
+small
+size
+1
+red
+colour
+1
+blue
+colour
+1
+loud
+sound
+1
+quiet
+sound
+1
+happy
+emotion
+1
+sad
+emotion
+2
+fast
+motion
+2
+slow
+motion
+2
+soft
+texture
+2
+tasty
+sensory (food)
+
+4️⃣ OBJECTS (Things / Activities / Environments)
+Level
+Word/Phrase
+Notes
+1
+ball
+play object
+1
+book
+literacy / learning
+1
+toy
+generic play
+1
+music
+auditory category
+1
+pizza
+food
+1
+dog
+animal
+1
+playground
+place
+1
+school
+place
+2
+game
+abstract play
+2
+ice cream
+treat / motivation
+2
+tablet
+tech / learning
+2
+car
+transport / family
+
+💬 Example Level 1 Sentence Builds
+	•	I → like → big → ball.
+	•	My friend → doesn’t like → loud → music.
+	•	We → want → tasty → pizza.
+	•	My dog → is → happy → today (using a copula substitute).
+
+💬 Example Level 2 Sentence Builds
+	•	I → love → soft → toy.
+	•	We → play → fast → game.
+	•	My teacher → hears → quiet → music.
+	•	My dad → wants → blue → car.
+
+Each word can be paired with a clear, high-contrast icon (photo or symbol) and grouped by colour family for rapid scanning:
+	•	Subjects = blue,
+	•	Verbs = green,
+	•	Qualifiers = orange,
+	•	Objects = yellow.
+Would you like me to extend this into the Level 3 matrix plan next (categories, extended vocabulary, and early abstract concepts like “because,” “and,” “when”)?
+Ah, yes — this is one of those deceptively simple problems that sits right at the intersection of linguistics and accessibility. You’ve spotted the heart of it: early AAC sentence builders often produce phrases that are technically ungrammatical in adult English but functionally successful for the learner (“I love soft toy”). The challenge is to keep it grammatically modelled without burdening syntax or choice count.
+Let’s look at the available levers and the simplest fixes.
+
+🧠 The Core Issue
+Your structure is Subject + Verb + Qualifier + Object. English grammar expects:
+Determiner + (Adjective) + Noun
+But AAC grids rarely include determiners (“a,” “the,” “some”) because:
+	•	They’re abstract and not easily picturable.
+	•	They consume precious board space.
+	•	They can cognitively overload beginners.
+So, how do we sound natural without overcomplicating?
+
+🪄 Simplest Fix: Bake the Grammar into the Vocabulary
+Instead of adding an entire new “determiner” column, you can:
+	•	Pluralize generic nouns that usually appear in sets (“books,” “toys,” “cars”).
+	•	Add determiners to countable singulars where it reads more naturally (“a ball,” “a dog,” “a pizza”).
+	•	Leave mass or abstract nouns bare (“music,” “ice cream,” “school”).
+That gives the generator enough grammatical surface to sound right, while keeping interface logic clean.
+
+🔧 Adjusted Object List (Hybrid Grammar)
+Level
+Word/Phrase
+Category
+Reasoning
+1
+a ball
+play
+countable singular
+1
+a book
+learning
+countable singular
+1
+toys
+play
+plural set
+1
+music
+sensory
+mass noun
+1
+pizza
+food
+mass noun
+1
+a dog
+animal
+singular noun
+1
+the playground
+place
+fixed proper noun
+1
+school
+place
+proper noun
+2
+games
+play
+plural set
+2
+ice cream
+food
+mass noun
+2
+a tablet
+tech
+countable singular
+2
+cars
+transport
+plural
+Now, your sentence engine produces:
+	•	I like a ball.
+	•	I love toys.
+	•	We hear music.
+	•	My friend wants ice cream.
+	•	My dad wants a car.
+Everything reads cleanly, no extra column required.
+
+🪶 Optional Enhancement: Silent “Article Logic”
+If you ever do add a grammar layer, the system could auto-insert determiners before speech output but not display them visually.
+E.g.
+Visual: I love soft toy. Spoken output: I love a soft toy.
+That’s cognitively lighter for the learner but socially correct for the listener.
+It could even switch “a/an” automatically by vowel sound (more on that when we hit Stage 3).
+
+✏️ Tiny Vocabulary Tweaks Help, Too
+Choosing plural or mass-friendly words simplifies everything:
+	•	“music” instead of “song”
+	•	“games” instead of “game”
+	•	“cookies” instead of “cookie”
+	•	“fruits” instead of “apple”
+It keeps noun morphology predictable for early literacy while preserving sentence shape.
+
+🔊 Example Sentences (Post-Fix)
+	•	I like big toys.
+	•	My mom loves quiet music.
+	•	We want a tasty pizza.
+	•	My friend sees a red ball.
+	•	I love soft blankets.
+All grammatically sound, but still accessible AAC-style.
+
+So yes — your instinct is right: the cleanest solution is to adjust noun forms, not add new interface pieces. Would you like me to carry this adjusted grammar approach into the upcoming Stage 3 adaptive grammar logic so the app can flexibly handle plurals and article insertion automatically?
+Perfect call — full alignment between what’s seen and what’s spoken is essential for literacy modeling and trust in the system. Here’s the revised Level 1–2 matrix, incorporating article-aware and plural-friendly vocabulary, with a design note about adaptive grammar behaviour.
+
+🧩 Updated Matrix — Aligned for Visual + Spoken Grammar
+1️⃣ SUBJECTS (Agents / Pronouns / People)
+Level
+Word/Phrase
+Notes
+1
+I
+self
+1
+You
+partner
+1
+We
+group
+1
+My mom
+family
+1
+My dad
+family
+1
+My friend
+peer
+1
+My teacher
+school
+1
+My dog
+pet
+2
+My brother
+sibling
+2
+My sister
+sibling
+2
+My class
+group
+2
+My baby
+caregiving
+
+2️⃣ VERBS / FEELINGS
+Level
+Word/Phrase
+Notes
+1
+like
+core positive
+1
+don’t like
+core negative
+1
+love
+strong positive
+1
+want
+desire
+1
+need
+necessity
+1
+have
+possession
+1
+see
+perception
+1
+hear
+perception
+2
+eat
+action
+2
+play
+recreation
+2
+go
+movement
+2
+make
+creation
+
+3️⃣ QUALIFIERS (Adjectives / Object Descriptors)
+Level
+Word/Phrase
+Notes
+1
+big
+size
+1
+small
+size
+1
+red
+colour
+1
+blue
+colour
+1
+loud
+sound
+1
+quiet
+sound
+1
+happy
+emotion
+1
+sad
+emotion
+2
+fast
+motion
+2
+slow
+motion
+2
+soft
+texture
+2
+tasty
+sensory (food)
+
+4️⃣ OBJECTS (Things / Places / Activities)
+Level
+Word/Phrase
+Notes
+1
+a ball
+countable singular
+1
+a book
+countable singular
+1
+toys
+plural set
+1
+music
+mass noun
+1
+pizza
+mass noun
+1
+a dog
+countable singular
+1
+the playground
+fixed place
+1
+school
+proper noun
+2
+games
+plural set
+2
+ice cream
+mass noun
+2
+a tablet
+tech object
+2
+cars
+plural set
+
+💬 Example Sentences
+Level 1
+	•	I like big toys.
+	•	My mom loves quiet music.
+	•	We want a tasty pizza.
+	•	My dog likes the playground.
+Level 2
+	•	I love soft toys.
+	•	My friend wants a tablet.
+	•	We play fast games.
+	•	My dad wants a car.
+All read and sound naturally without extra grammar tiles.
+
+⚙️ Adaptive Grammar Logic — Implementation Note
+When activated, adaptive grammar handles plural and article insertion in the text area itself, not invisibly in speech.
+	•	The text bar always mirrors the spoken output exactly.
+	•	If the engine inserts “a,” “an,” or plural “-s,” those appear on screen at once.
+	•	Determiner rules (a / an) and subject-verb agreement (like / likes) are processed automatically, but visually transparent.
+
+Shall I now carry this revised vocabulary and grammar alignment forward into Stage 3: Adaptive Grammar Logic, where we define how pluralization, articles, and verb agreement operate under the hood?
+Right, lead programmer hat on. It’s a bit snug, but we’ll manage.
+You’re thinking about exactly the right problem: the grammar can’t depend on me being in the loop, so we need a rules engine + some smart metadata that travels with the vocabulary.
+I’ll break it into:
+	•	The overall architecture
+	•	The universal rules
+	•	What has to be stored per word (your “vocab editor” idea)
+	•	A concrete example of the full pipeline
+
+1. Architecture: Two Layers
+Think of it as two cooperating pieces:
+	•	Universal Grammar Engine
+	•	Knows about: person/number, articles, pluralisation patterns, adjective order.
+	•	Works entirely from features, not specific words.
+	•	Per-Item Grammar Profile (Metadata on each word)
+	•	Every subject, verb, qualifier, and object carries a small “grammar card”:
+	•	Is it singular or plural?
+	•	Is it a mass noun?
+	•	What’s its plural form?
+	•	Does it prefer “a/an”, “the”, or nothing?
+	•	For verbs: what’s the 3rd-person form?
+The engine is universal; what you customise when adding vocabulary is the grammar card.
+
+2. Universal Rules (Under the Hood)
+2.1 Subject → Person & Number
+Each subject gets tagged once:
+	•	I → person=1, number=sg
+	•	We → person=1, number=pl
+	•	You → person=2, number=sg/pl
+	•	My mom, My dad, My friend, My teacher, My dog, etc. → person=3, number=sg
+	•	My class, My friends → person=3, number=pl
+The logic:
+if subject.person == 3 and subject.number == sg:
+    subject_class = "3sg"
+else:
+    subject_class = "non-3sg"
+That single subject_class flag drives verb agreement.
+
+2.2 Verb Agreement
+Each verb tile has two stored forms:
+	•	base_form → used for I/you/we/they
+	•	third_singular_form → used for he/she/it/my mom
+Examples:
+	•	like → base: like, 3sg: likes
+	•	don’t like → base: don’t like, 3sg: doesn’t like
+	•	love → base: love, 3sg: loves
+	•	go → base: go, 3sg: goes
+Logic:
+if subject_class == "3sg":
+    verb_text = verb.third_singular_form
+else:
+    verb_text = verb.base_form
+No guessing or AI — you define those two forms when you add the verb. For most “regular” verbs, the system can auto-suggest the 3rd-person form (like → likes) and let you override when needed (e.g., go → goes, have → has).
+
+2.3 Noun Phrases: Articles + Plurals
+Each object tile is tagged with:
+	•	noun_type:
+	•	countable (ball, car, dog)
+	•	mass (pizza, music, ice cream, water)
+	•	proper (school, Monday, David)
+	•	set_plural (toys, games, cars)
+	•	default_number:
+	•	sg or pl
+	•	article_policy:
+	•	auto_indefinite (use “a/an” for singular countable)
+	•	definite (use “the”)
+	•	none (no article: music, school, pizza)
+	•	plural_form: string (for objects that can be pluralised)
+With those, the engine builds the object phrase:
+if noun_type == "countable" and default_number == "sg":
+    if article_policy == "auto_indefinite":
+        article = choose_a_or_an(noun_base_text)
+    elif article_policy == "definite":
+        article = "the"
+    else:
+        article = ""  # none
+
+    noun_text = noun_base_text   # "ball"
+
+elif noun_type == "countable" and default_number == "pl":
+    article = ""  # often no article; or "some" if you decide later
+    noun_text = plural_form      # "balls"
+
+elif noun_type == "mass":
+    article = ""                 # "pizza", "music"
+    noun_text = noun_base_text
+
+elif noun_type == "proper":
+    article = "" or "the" depending on policy
+    noun_text = noun_base_text
+Choosing “a” vs “an”:
+if article_policy == "auto_indefinite" and default_number == "sg":
+    if starts_with_vowel_sound(noun_base_text):
+        article = "an"
+    else:
+        article = "a"
+You can keep starts_with_vowel_sound simple (a/e/i/o/u with manual overrides), and allow an override flag for weird ones (“unicorn” → a, “hour” → an).
+Crucially:
+Whatever the engine decides – "a dog", "an apple", "games" – that full phrase is what goes into the text bar and what gets spoken. No mismatch.
+
+2.4 Qualifiers (Adjective Placement)
+These are easier:
+	•	English order: article + qualifier + noun_phrase.
+	•	For mass/proper nouns, just drop the article if policy is none.
+if article != "":
+    full_np = article + " " + qualifier + " " + noun_text
+else:
+    full_np = qualifier + " " + noun_text
+Examples:
+	•	article=a, qualifier=big, noun=ball → “a big ball”
+	•	article="", qualifier=quiet, noun=music → “quiet music”
+	•	article=the, qualifier=blue, noun=playground → “the blue playground” (if allowed)
+
+3. Vocabulary Editor: How People Add New Words
+This is where you guide non-programmer users so the grammar engine has what it needs.
+3.1 Adding a Subject
+Fields:
+	•	Display text: My brother
+	•	Person/number: choose from a dropdown
+	•	I (1sg), We (1pl), You (2), He/She/It (3sg), They (3pl)
+That’s it for subjects.
+
+3.2 Adding a Verb Tile
+Fields:
+	•	Display text: e.g., like, don’t like, hear
+	•	Base form (I/we/you/they): text field
+	•	He/She/It form: text field
+Optional: a dropdown template to prefill:
+	•	Regular (like → auto-suggest likes)
+	•	Don’t/doesn’t pattern (don’t like → auto-suggest doesn’t like)
+	•	Irregular (have → has)
+
+3.3 Adding an Object
+Fields:
+	•	Base noun text: ball, pizza, music, car
+	•	Noun type: dropdown
+	•	countable, mass, proper, set_plural
+	•	Default number: singular or plural
+	•	Plural form: (if applicable; auto-suggest + override)
+	•	Article policy: dropdown
+	•	auto (a/an), definite (the), none
+The UI can preview:
+“Example: I like [a big ball]” “Example: I like [tasty pizza]”
+So people can see if it reads right.
+
+3.4 Adding a Qualifier
+Mostly simple:
+	•	Text: big, quiet, soft, tasty
+	•	Optionally: tag semantic group (sound, size, texture), but that’s for filtering, not grammar.
+No inflection needed here.
+
+4. Full Pipeline Example
+User selects:
+	•	Subject: My dad → person=3, number=sg → subject_class=3sg
+	•	Verb: want → base=want, 3sg=wants → pick wants
+	•	Qualifier: blue
+	•	Object: car with:
+	•	noun_type=countable, default_number=sg, article_policy=auto_indefinite
+Engine builds:
+	•	Verb form: wants
+	•	Article: a (blue doesn’t change that)
+	•	Noun phrase: "a blue car"
+	•	Final sentence:
+"My dad wants a blue car."
+This exact string appears in the text bar and goes into TTS.
+Another:
+	•	Subject: We → non-3sg
+	•	Verb: love → base=love
+	•	Qualifier: soft
+	•	Object: toys with noun_type=set_plural, default_number=pl, article_policy=none
+Result:
+"We love soft toys."
+Again, same text on screen and in speech.
+
+Answering Your Core Question
+Is this vocabulary-matrix dependent, or can it be universal?
+	•	The logic is universal: person/number → verb form, noun type → article + plural, adjective placement.
+	•	What you must provide per vocabulary item is a tiny grammar profile (those dropdown fields) so the universal logic doesn’t have to guess.
+Your idea of a “new vocabulary” window is exactly right:
+	•	Each new icon is added with guided fields.
+	•	The system gives a preview sentence so the teacher/therapist can confirm it “sounds right” before saving.
+	•	Once saved, it behaves just like the built-in matrix items.
+If you’d like, next step I can:
+	•	Write this out as a data schema (e.g., JSON or database fields) and
+	•	Sketch some pseudo-code for the sentence builder function that takes {subject, verb, qualifier, object} + metadata and returns the final sentence string.
+Interface for adding vocabulary icons and text
+
+There should be a settings “Gear” or icon in the lower right corner of the screen. One of the options should be “Edit Mode.” When in edit mode, users can click on a square in the communication board matrix in any of the core areas (subject, verb, qualifier, object), and a modal window will open up where an icon can be added/changed, along with the information for the adaptive grammar logic engine. There should be buttons to choose icons and related info from the default library and from a user-defined library. 
+
+The database, or data array, that holds the default and user libraries needs to include everything needed to sort on core category, Level 3 additional inner core categories, the icon, the main text, and any related text and rules for that vocabulary item for the adaptive grammar logic engine.
+
+
