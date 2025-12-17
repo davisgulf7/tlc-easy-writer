@@ -15,7 +15,8 @@ export default defineConfig({
         short_name: 'EasyWriter',
         description: 'A simple AAC communication app',
         theme_color: '#ffffff',
-        start_url: '/',
+        start_url: '/tlc-easy-writer/',
+        scope: '/tlc-easy-writer/',
         display: 'standalone',
         background_color: '#ffffff',
         icons: [
