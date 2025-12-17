@@ -4,9 +4,7 @@ import { useStore } from '../../store/useStore';
 import type { VocabularyItem, SubjectItem, VerbItem, ObjectItem, QualifierItem } from '../../grammar/types';
 
 // Default Icons
-import iIcon from '../../assets/symbols/i.png';
-import youIcon from '../../assets/symbols/you.png';
-import weIcon from '../../assets/symbols/we.png';
+import { systemLibrary } from '../../grammar/initialVocabulary';
 
 export const EditorModal: React.FC = () => {
     // Consume EVERYTHING from useStore
@@ -241,7 +239,7 @@ export const EditorModal: React.FC = () => {
                             {libraryTab === 'system' ? (
                                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                                     {/* Default System Icons */}
-                                    {[iIcon, youIcon, weIcon].map((src, idx) => (
+                                    {systemLibrary.map((src, idx) => (
                                         <button
                                             key={idx}
                                             type="button"

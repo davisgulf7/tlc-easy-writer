@@ -157,3 +157,22 @@ export const phrases: VocabularyItem[] = [
     { id: 'p_tired', label: 'I am tired', type: 'phrase', level: 2, icon: iAmTiredIcon },
     { id: 'p_pain', label: 'In pain', type: 'phrase', level: 2, icon: inPainIcon },
 ];
+
+// --- System Library Export ---
+export const systemLibrary = [
+    // Subjects
+    iIcon, youIcon, weIcon, myMomIcon, myDadIcon, myFriendIcon, myTeacherIcon,
+    myDogIcon, myBrotherIcon, mySisterIcon, myClassIcon, myBabyIcon,
+    // Verbs
+    likeIcon, dontLikeIcon, wantIcon, loveIcon, needIcon, haveIcon, seeIcon, hearIcon,
+    eatIcon, playIcon, goIcon, makeIcon,
+    // Qualifiers
+    bigIcon, smallIcon, redIcon, blueIcon, loudIcon, quietIcon, happyIcon, sadIcon,
+    fastIcon, slowIcon, softIcon, tastyIcon,
+    // Objects
+    ballIcon, bookIcon, dogIcon, toysIcon, musicIcon, pizzaIcon, playgroundIcon,
+    schoolIcon, gamesIcon, iceCreamIcon, tabletIcon, carsIcon,
+    // Phrases
+    yesIcon, noIcon, iNeedHelpIcon, iLikeThatIcon, iDontLikeThatIcon, stopIcon,
+    iWantIcon, bathroomIcon, iAmHungryIcon, iAmThirstyIcon, iAmTiredIcon, inPainIcon
+];
