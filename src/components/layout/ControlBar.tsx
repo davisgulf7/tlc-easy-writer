@@ -34,19 +34,26 @@ export const ControlBar: React.FC = () => {
                             )}
                         >
                             {/* 1/3 Icon Area */}
-                            <div className="w-1/3 flex items-center justify-center bg-black/10 border-r border-black/10">
-                                {/* Placeholder Circle for Icon */}
-                                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shadow-inner">
+                            {/* 1/3 Icon Area - Solid White */}
+                            <div className="w-1/3 flex items-center justify-center bg-white border-r-2 border-black/10">
+                                {/* Placeholder Circle for Icon - Colored text to match category? Or just simple? */}
+                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shadow-inner text-slate-400">
                                     <span className="text-xs opacity-50">★</span>
                                 </div>
                             </div>
 
                             {/* 2/3 Text Area */}
                             <div className="w-2/3 flex items-center justify-center px-1">
-                                <span className={clsx(
-                                    "truncate max-w-full drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] text-white",
-                                    "text-sm sm:text-lg"
-                                )}>
+                                <span
+                                    className={clsx(
+                                        "truncate max-w-full text-white",
+                                        "text-sm sm:text-lg"
+                                    )}
+                                    style={{
+                                        // Softer shadow with blur on all sides
+                                        textShadow: '0 0 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.5)'
+                                    }}
+                                >
                                     {role.label}
                                 </span>
                             </div>

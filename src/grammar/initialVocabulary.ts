@@ -1,10 +1,13 @@
 import type { SubjectItem, VerbItem, QualifierItem, ObjectItem } from './types';
+import iInfo from '../assets/symbols/i.png';
+import youIcon from '../assets/symbols/you.png';
+import weIcon from '../assets/symbols/we.png';
 
 // --- Subjects ---
 export const subjects: SubjectItem[] = [
-    { id: 's_i', type: 'subject', label: 'I', level: 1, person: '1', number: 'sg' },
-    { id: 's_you', type: 'subject', label: 'You', level: 1, person: '2', number: 'sg' },
-    { id: 's_we', type: 'subject', label: 'We', level: 1, person: '1', number: 'pl' },
+    { id: 's_i', type: 'subject', label: 'I', level: 1, person: '1', number: 'sg', icon: iInfo },
+    { id: 's_you', type: 'subject', label: 'You', level: 1, person: '2', number: 'sg', icon: youIcon },
+    { id: 's_we', type: 'subject', label: 'We', level: 1, person: '1', number: 'pl', icon: weIcon },
     { id: 's_mom', type: 'subject', label: 'My Mom', level: 1, person: '3', number: 'sg' },
     { id: 's_dad', type: 'subject', label: 'My Dad', level: 1, person: '3', number: 'sg' },
     { id: 's_friend', type: 'subject', label: 'My Friend', level: 1, person: '3', number: 'sg' },

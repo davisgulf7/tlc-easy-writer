@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { clsx } from 'clsx';
 import { useStore } from '../../store/useStore';
 import type { VocabularyItem, SubjectItem, VerbItem, ObjectItem, QualifierItem } from '../../grammar/types';
+
+// Default Icons
+import iIcon from '../../assets/symbols/i.png';
+import youIcon from '../../assets/symbols/you.png';
+import weIcon from '../../assets/symbols/we.png';
 
 export const EditorModal: React.FC = () => {
     // Consume EVERYTHING from useStore
@@ -17,7 +23,11 @@ export const EditorModal: React.FC = () => {
         deleteTabItem,
         // Added for Phrases
         viewMode,
-        activePhraseTabId
+        activePhraseTabId,
+        // Library
+        userLibrary,
+        addToUserLibrary,
+        removeFromUserLibrary
     } = useStore();
 
     // Local State for Form
@@ -30,6 +40,7 @@ export const EditorModal: React.FC = () => {
 
     // Image State
     const [imageSrc, setImageSrc] = useState('');
+    const [libraryTab, setLibraryTab] = useState<'system' | 'user'>('system');
 
     // Populate form when editingItem changes
     useEffect(() => {
@@ -62,7 +73,10 @@ export const EditorModal: React.FC = () => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImageSrc(reader.result as string);
+                const result = reader.result as string;
+                addToUserLibrary(result); // Add to library automatically
+                setImageSrc(result);
+                setLibraryTab('user'); // Switch to user tab to see it
             };
             reader.readAsDataURL(file);
         }
@@ -171,41 +185,123 @@ export const EditorModal: React.FC = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6 p-6 overflow-y-auto"> {/* Added p-6 and overflow-y-auto */}
-                    {/* Image Upload Section */}
-                    <div className="flex flex-col items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                        <div className="relative w-32 h-32 rounded-lg border-2 border-slate-200 overflow-hidden bg-white flex items-center justify-center">
-                            {imageSrc ? (
-                                <img src={imageSrc} alt="Preview" className="w-full h-full object-contain" />
-                            ) : (
-                                <span className="text-4xl text-slate-300 font-bold">
-                                    {label ? label.charAt(0).toUpperCase() : '?'}
-                                </span>
-                            )}
-                        </div>
-
-                        <div className="flex gap-2">
-                            <label className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg cursor-pointer transition-colors text-sm">
-                                📷 Upload Photo
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </label>
+                    {/* Image Library Section */}
+                    <div className="flex flex-col gap-4 p-4 bg-slate-50 rounded-xl">
+                        <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                            <div className="flex gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setLibraryTab('system')}
+                                    className={clsx(
+                                        "text-sm font-bold pb-2 transition-colors border-b-2",
+                                        libraryTab === 'system' ? "text-blue-600 border-blue-600" : "text-slate-400 border-transparent hover:text-slate-600"
+                                    )}
+                                >
+                                    System Symbols
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setLibraryTab('user')}
+                                    className={clsx(
+                                        "text-sm font-bold pb-2 transition-colors border-b-2",
+                                        libraryTab === 'user' ? "text-blue-600 border-blue-600" : "text-slate-400 border-transparent hover:text-slate-600"
+                                    )}
+                                >
+                                    My Photos
+                                </button>
+                            </div>
                             {imageSrc && (
                                 <button
                                     type="button"
                                     onClick={() => setImageSrc('')}
-                                    className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded-lg text-sm"
+                                    className="text-xs text-red-500 font-bold hover:text-red-700"
                                 >
-                                    Clear
+                                    Clear Current
                                 </button>
                             )}
                         </div>
-                        <p className="text-xs text-slate-400 text-center max-w-xs">
-                            Upload a picture symbol to replace the default letter.
-                        </p>
+
+                        {/* Current Selection Preview (Small) */}
+                        <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden shrink-0">
+                                {imageSrc ? (
+                                    <img src={imageSrc} alt="Selected" className="w-full h-full object-contain" />
+                                ) : (
+                                    <span className="text-xl text-slate-300 font-bold">?</span>
+                                )}
+                            </div>
+                            <p className="text-sm text-slate-500">
+                                {imageSrc ? "Icon selected" : "No icon selected"}
+                            </p>
+                        </div>
+
+                        {/* Library Content */}
+                        <div className="h-48 overflow-y-auto p-2 bg-white rounded-lg border border-slate-200">
+                            {libraryTab === 'system' ? (
+                                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                    {/* Default System Icons */}
+                                    {[iIcon, youIcon, weIcon].map((src, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => setImageSrc(src)}
+                                            className={clsx(
+                                                "aspect-square rounded-lg border p-1 hover:bg-slate-50 transition-all",
+                                                imageSrc === src ? "border-blue-500 ring-2 ring-blue-200" : "border-slate-100"
+                                            )}
+                                        >
+                                            <img src={src} alt="System Icon" className="w-full h-full object-contain" />
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {/* Upload New */}
+                                    <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
+                                        <span className="text-2xl mb-1">📷</span>
+                                        <span className="text-sm font-bold text-slate-600">Upload New Photo</span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleFileChange}
+                                        />
+                                    </label>
+
+                                    {/* User Library Grid */}
+                                    {userLibrary.length > 0 && (
+                                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                            {userLibrary.map((src, idx) => (
+                                                <div key={idx} className="relative group">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setImageSrc(src)}
+                                                        className={clsx(
+                                                            "w-full aspect-square rounded-lg border p-1 hover:bg-slate-50 transition-all",
+                                                            imageSrc === src ? "border-blue-500 ring-2 ring-blue-200" : "border-slate-100"
+                                                        )}
+                                                    >
+                                                        <img src={src} alt="User Icon" className="w-full h-full object-contain" />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            removeFromUserLibrary(src);
+                                                            if (imageSrc === src) setImageSrc('');
+                                                        }}
+                                                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                                        title="Delete from Library"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Label Input */}

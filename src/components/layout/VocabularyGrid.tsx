@@ -289,18 +289,17 @@ export const VocabularyGrid: React.FC = () => {
                                 <>
                                     {/* Top 75% - Picture Symbol Area */}
                                     <div className="h-[75%] w-full flex items-center justify-center p-2 min-h-0">
-                                        {item.icon && (item.icon.startsWith('data:') || item.icon.startsWith('http')) ? (
+                                        {item.icon ? (
                                             <img
                                                 src={item.icon}
                                                 alt={item.label}
-                                                className="w-full h-full object-contain drop-shadow-sm"
+                                                className="w-full h-full object-contain"
                                             />
                                         ) : (
-                                            // Fallback: Default Circle Icon - Made Responsive
+                                            // Fallback: Default Circle Icon
                                             <div className={clsx(
                                                 "h-full aspect-square max-w-full rounded-full flex items-center justify-center text-white font-black shadow-inner",
                                                 roleColors.icon,
-                                                // Responsive Font Size using clamp or container query conceptual equivalent
                                                 "text-[200%]"
                                             )}>
                                                 {/* Use style for dynamic font scaling relative to self height if needed, or simple large text that scales with view */}

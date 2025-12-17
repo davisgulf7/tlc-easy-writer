@@ -58,10 +58,10 @@ const DEFAULT_THEME: ThemeConfig = {
     mode: 'liquid', // kept for structure, though UI only uses flat now
     backgroundColor: '#01033c', // Dark Navy default
     categoryColors: {
-        subject: '#f0e800',  // Who (Yellow)
-        verb: '#f07fc1',     // Action (Pink)
-        qualifier: '#372af4',// Describe (Blue)
-        object: '#d39103',   // What (Orange/Gold)
+        subject: '#FACC15',  // Who (Yellow)
+        verb: '#4ADE80',     // Action (Green)
+        qualifier: '#60A5FA',// Describe (Blue)
+        object: '#FB923C',   // What (Orange)
         phrase: '#f3e8ff'    // purple-50
     }
 };
@@ -139,6 +139,11 @@ interface AppState {
     deleteProfile: (id: string) => void;
     resetToDefaults: () => void;
     importProfileData: (data: Profile['data']) => void;
+
+    // Image Library Actions
+    userLibrary: string[];
+    addToUserLibrary: (image: string) => void;
+    removeFromUserLibrary: (image: string) => void;
 }
 
 // Profile Interface
@@ -236,6 +241,9 @@ export const useStore = create<AppState>((set) => {
 
         // Profiles
         profiles: loadProfiles(),
+
+        // User Library
+        userLibrary: JSON.parse(localStorage.getItem('tlc_user_library') || '[]'),
 
         // UI Configuration
         tabModalConfig: null,
@@ -515,6 +523,19 @@ export const useStore = create<AppState>((set) => {
                 activePhraseTabId: 'core',
                 level: 1
             };
+        }),
+
+        addToUserLibrary: (image: string) => set((state) => {
+            if (state.userLibrary.includes(image)) return {}; // Prevent duplicates
+            const newLib = [image, ...state.userLibrary];
+            localStorage.setItem('tlc_user_library', JSON.stringify(newLib));
+            return { userLibrary: newLib };
+        }),
+
+        removeFromUserLibrary: (image: string) => set((state) => {
+            const newLib = state.userLibrary.filter(i => i !== image);
+            localStorage.setItem('tlc_user_library', JSON.stringify(newLib));
+            return { userLibrary: newLib };
         })
     };
 });

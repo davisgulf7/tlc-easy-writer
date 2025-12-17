@@ -24,23 +24,23 @@
 
 :root {
   /* Default Values (Mirroring original hexes) */
-  /* Subject (Who) */
-  --theme-subject: #f0e800;
+  /* Subject (Who) - Yellow */
+  --theme-subject: #FACC15;
   --theme-subject-light: color-mix(in srgb, var(--theme-subject), white 20%);
   --theme-subject-dark: color-mix(in srgb, var(--theme-subject), black 20%);
 
-  /* Verb (Action) */
-  --theme-verb: #f07fc1;
+  /* Verb (Action) - Green */
+  --theme-verb: #4ADE80;
   --theme-verb-light: color-mix(in srgb, var(--theme-verb), white 20%);
   --theme-verb-dark: color-mix(in srgb, var(--theme-verb), black 20%);
 
-  /* Qualifier (Describe) */
-  --theme-qualifier: #372af4;
+  /* Qualifier (Describe) - Blue */
+  --theme-qualifier: #60A5FA;
   --theme-qualifier-light: color-mix(in srgb, var(--theme-qualifier), white 20%);
   --theme-qualifier-dark: color-mix(in srgb, var(--theme-qualifier), black 20%);
 
-  /* Object (What) */
-  --theme-object: #d39103;
+  /* Object (What) - Orange */
+  --theme-object: #FB923C;
   --theme-object-light: color-mix(in srgb, var(--theme-object), white 20%);
   --theme-object-dark: color-mix(in srgb, var(--theme-object), black 20%);
 }
