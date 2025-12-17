@@ -106,7 +106,7 @@ export const MainLayout: React.FC = () => {
                                     : "bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-100"
                             )}
                         >
-                            {tab.label}
+                            {tab.id === 'core' ? 'Phrases' : tab.label}
                             {isEditMode && tab.isRemovable && (
                                 <span
                                     onClick={(e) => {
