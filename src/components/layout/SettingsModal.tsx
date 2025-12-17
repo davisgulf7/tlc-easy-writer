@@ -107,23 +107,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 </button>
                             </section>
 
-                            {/* Quit App */}
-                            <div className="flex justify-end pt-4 border-t border-slate-200 mt-auto">
-                                <button
-                                    onClick={() => {
-                                        if (window.confirm("Are you sure you want to quit?")) {
-                                            window.close();
-                                            // Fallback for browsers that block close()
-                                            setTimeout(() => {
-                                                window.location.href = "about:blank";
-                                            }, 100);
-                                        }
-                                    }}
-                                    className="px-8 py-4 text-slate-400 hover:text-white hover:bg-red-500 font-bold text-xl rounded-xl transition-all flex items-center justify-center border-2 border-transparent hover:border-red-600 shadow-sm"
-                                >
-                                    Quit
-                                </button>
-                            </div>
+                            {/* Quit App - Desktop Only */}
+                            {!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (
+                                <div className="flex justify-end pt-4 border-t border-slate-200 mt-auto">
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm("Are you sure you want to quit?")) {
+                                                window.close();
+                                            }
+                                        }}
+                                        className="px-8 py-4 text-slate-400 hover:text-white hover:bg-red-500 font-bold text-xl rounded-xl transition-all flex items-center justify-center border-2 border-transparent hover:border-red-600 shadow-sm"
+                                    >
+                                        Quit
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 
