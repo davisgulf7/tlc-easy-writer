@@ -24,7 +24,7 @@ export const InstructionsModal: React.FC<InstructionsModalProps> = ({ isOpen, on
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 text-slate-600">
 
                     <section>
-                        <h3 className="text-lg font-bold text-slate-800 mb-2">🗣️ building Sentences</h3>
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">🗣️ Building Sentences</h3>
                         <p>Tap icon cards to add them to the sentence bar. Tap the bar to speak the whole sentence.</p>
                     </section>
 

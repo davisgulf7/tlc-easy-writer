@@ -6,6 +6,8 @@ import type { Profile } from '../../store/useStore';
 import { onlineContentService } from '../../services/onlineContentService';
 import type { OnlineSearchResult } from '../../services/onlineContentService';
 
+import { Settings, Users, Cloud, Mic, Palette, Info } from 'lucide-react';
+
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -66,36 +68,64 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     if (!isOpen) return null;
 
+    const tabConfig: Record<SettingsTab, { label: string; icon: React.ElementType; color: string }> = {
+        general: { label: 'General', icon: Settings, color: 'text-slate-600' },
+        profiles: { label: 'Profiles', icon: Users, color: 'text-purple-600' },
+        online: { label: 'Exchange', icon: Cloud, color: 'text-sky-600' },
+        speech: { label: 'Speech', icon: Mic, color: 'text-pink-600' },
+        appearance: { label: 'Theme', icon: Palette, color: 'text-amber-600' },
+        credits: { label: 'Credits', icon: Info, color: 'text-teal-600' }
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col animate-in fade-in zoom-in duration-200 overflow-hidden">
 
                 {/* Header & Tabs */}
                 <div className="flex flex-col border-b border-slate-200">
-                    <div className="flex justify-between items-center p-6 pb-2">
+                    <div className="flex justify-between items-center p-6 pb-4">
                         <h2 className="text-2xl font-bold text-slate-800">Settings</h2>
                         <button onClick={onClose} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
                             ✕
                         </button>
                     </div>
 
-                    <div className="flex px-3 gap-3 md:px-6 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth">
-                        {(['general', 'profiles', 'online', 'speech', 'appearance', 'credits'] as const).map(tab => {
-                            const labels: Record<string, string> = {
-                                online: 'Exchange'
-                            };
+                    <div className="flex px-2 md:px-6 overflow-x-auto no-scrollbar scroll-smooth">
+                        {(Object.keys(tabConfig) as SettingsTab[]).map(tab => {
+                            const { icon: Icon, color, label } = tabConfig[tab];
+                            const isActive = activeTab === tab;
                             return (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
                                     className={clsx(
-                                        "pb-3 text-sm font-bold capitalize transition-colors border-b-2 whitespace-nowrap flex-shrink-0",
-                                        activeTab === tab
-                                            ? "text-blue-600 border-blue-600"
-                                            : "text-slate-400 border-transparent hover:text-slate-600"
+                                        "flex-1 md:flex-none flex items-center justify-center gap-2 pb-3 px-3 md:px-4 border-b-2 transition-all min-w-[3.5rem]",
+                                        isActive
+                                            ? "border-blue-600"
+                                            : "border-transparent hover:bg-slate-50"
                                     )}
+                                    title={label}
                                 >
-                                    {labels[tab] || tab}
+                                    {/* Icon: Visible ONLY on mobile (hidden on md) */}
+                                    <Icon
+                                        size={24}
+                                        className={clsx(
+                                            "md:hidden",
+                                            isActive ? color : "text-slate-400"
+                                        )}
+                                    />
+
+                                    {/* Text: Visible ONLY on desktop (hidden on mobile) */}
+                                    {/* Wait, previous text was "hidden md:block". 
+                                        User said: "The icons show up on the regular layout... the tabs run off the edge. They should only show up on the mobile version."
+                                        So Desktop = Text Only. Mobile = Icon Only. 
+                                    */}
+                                    <span className={clsx(
+                                        "hidden md:block font-bold text-sm capitalize whitespace-nowrap",
+                                        isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
+                                    )}>
+                                        {label}
+                                    </span>
                                 </button>
                             );
                         })}
@@ -208,7 +238,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                                 <div className="space-y-4">
                                     {/* Search Bar */}
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col md:flex-row gap-2">
                                         <input
                                             type="text"
                                             placeholder="Search profiles, phrases, vocab..."
@@ -233,7 +263,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                                     setIsSearching(false);
                                                 });
                                             }}
-                                            className="px-6 bg-sky-600 text-white rounded-lg font-bold hover:bg-sky-700 transition-colors"
+                                            className="w-full md:w-auto px-6 py-3 md:py-0 bg-sky-600 text-white rounded-lg font-bold hover:bg-sky-700 transition-colors"
                                         >
                                             {isSearching ? '...' : 'Search'}
                                         </button>
@@ -277,12 +307,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                                         {!isSearching && searchResults.map(result => (
                                             <div key={result.id} className="bg-white p-4 rounded-xl border border-sky-100 shadow-sm flex flex-col gap-3">
-                                                <div className="flex justify-between items-start">
+                                                <div className="flex flex-col md:flex-row justify-between items-start gap-2">
                                                     <div>
-                                                        <h4 className="font-bold text-slate-800 text-lg">{result.title}</h4>
-                                                        <p className="text-sm text-slate-500 mb-1">by {result.author} • {result.downloads} downloads</p>
+                                                        <h4 className="font-bold text-slate-800 text-lg leading-tight">{result.title}</h4>
+                                                        <p className="text-sm text-slate-500 mb-1 mt-1">by {result.author} • {result.downloads} downloads</p>
                                                         <span className={clsx(
-                                                            "text-xs px-2 py-0.5 rounded uppercase font-bold tracking-wider",
+                                                            "text-xs px-2 py-0.5 rounded uppercase font-bold tracking-wider inline-block mt-1",
                                                             result.type === 'profile' && "bg-purple-100 text-purple-700",
                                                             result.type === 'phrase' && "bg-orange-100 text-orange-700",
                                                             result.type === 'vocabulary' && "bg-green-100 text-green-700"
