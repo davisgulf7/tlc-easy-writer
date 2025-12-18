@@ -45,7 +45,7 @@ export const EditorModal: React.FC = () => {
     const OPEN_SYMBOLS_TOKEN = "token::181-1:b2c44ca3de:1766028306:c24a747bc6821a37a25d816d:e043eb4f87aa71effb892b90b00c11e1a1714eef33c9c6b6aa7bad918b935b041c7a53d986484488652d38aa0fa452cec0b26492de37ed0c45f188860d2e4f8f";
 
     // Sub-component for Search Results (defined here for access to state/props if needed, or moved outside)
-    const OpenSymbolsResults = ({ query, onSelect }: { query: string; onSelect: (url: string) => void }) => {
+    const OpenSymbolsResults = ({ query, onSelect }: { query: string; onSelect: (url: string, name: string) => void }) => {
         const [results, setResults] = useState<any[]>([]);
         const [loading, setLoading] = useState(false);
         const [error, setError] = useState('');
@@ -83,7 +83,7 @@ export const EditorModal: React.FC = () => {
                     <button
                         key={item.id}
                         type="button"
-                        onClick={() => onSelect(item.image_url)}
+                        onClick={() => onSelect(item.image_url, item.name)}
                         className="aspect-square rounded-lg border border-slate-100 p-1 hover:bg-slate-50 hover:border-blue-300 transition-all flex flex-col items-center justify-center overflow-hidden bg-white"
                         title={item.name}
                     >
@@ -121,21 +121,7 @@ export const EditorModal: React.FC = () => {
     // Check if modified (Core) OR if it exists (Tab - checking if label is not empty)
     const isModified = isCore ? (editingItem.id in userOverrides) : !!editingItem.label;
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            try {
-                const result = await processImage(file);
-                addToUserLibrary(result); // Add to library automatically
-                setImageSrc(result);
-                setLibraryTab('user'); // Switch to user tab to see it
-            } catch (err) {
-                console.error("Image processing failed", err);
-                // @ts-ignore
-                alert(err.message || "Failed to process image. Try a smaller file or different format.");
-            }
-        }
-    };
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -343,11 +329,6 @@ export const EditorModal: React.FC = () => {
                             {/* USER TAB */}
                             {libraryTab === 'user' && (
                                 <div className="space-y-4">
-                                    {userLibrary.length > 0 && searchQuery && (
-                                        <div className="bg-yellow-50 text-yellow-700 p-2 rounded text-xs text-center border border-yellow-100">
-                                            Local photos are not searchable yet. Showing all.
-                                        </div>
-                                    )}
                                     {/* Upload New */}
                                     <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
                                         <span className="text-2xl mb-1">📷</span>
@@ -356,39 +337,69 @@ export const EditorModal: React.FC = () => {
                                             type="file"
                                             accept="image/*"
                                             className="hidden"
-                                            onChange={handleFileChange}
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    try {
+                                                        const result = await processImage(file);
+
+                                                        // Prompt for Name
+                                                        const name = window.prompt("Name this image:", file.name.split('.')[0]);
+                                                        if (name === null) return; // Cancelled
+
+                                                        addToUserLibrary({
+                                                            id: `img_${Date.now()}`,
+                                                            src: result,
+                                                            name: name || "Untitled",
+                                                            date: Date.now()
+                                                        });
+                                                        setImageSrc(result);
+                                                    } catch (err) {
+                                                        console.error("Image processing failed", err);
+                                                        // @ts-ignore
+                                                        alert(err.message || "Failed to process image.");
+                                                    }
+                                                }
+                                            }}
                                         />
                                     </label>
 
                                     {/* User Library Grid */}
                                     {userLibrary.length > 0 ? (
                                         <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                                            {userLibrary.map((src, idx) => (
-                                                <div key={idx} className="relative group">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setImageSrc(src)}
-                                                        className={clsx(
-                                                            "w-full aspect-square rounded-lg border p-1 hover:bg-slate-50 transition-all",
-                                                            imageSrc === src ? "border-blue-500 ring-2 ring-blue-200" : "border-slate-100"
-                                                        )}
-                                                    >
-                                                        <img src={src} alt="User Icon" className="w-full h-full object-contain" />
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            removeFromUserLibrary(src);
-                                                            if (imageSrc === src) setImageSrc('');
-                                                        }}
-                                                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                                                        title="Delete from Library"
-                                                    >
-                                                        ×
-                                                    </button>
-                                                </div>
-                                            ))}
+                                            {userLibrary
+                                                .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                                .map((item) => (
+                                                    <div key={item.id} className="relative group">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setImageSrc(item.src)}
+                                                            className={clsx(
+                                                                "w-full aspect-square rounded-lg border p-1 hover:bg-slate-50 transition-all flex flex-col items-center justify-center",
+                                                                imageSrc === item.src ? "border-blue-500 ring-2 ring-blue-200" : "border-slate-100"
+                                                            )}
+                                                            title={item.name}
+                                                        >
+                                                            <img src={item.src} alt={item.name} className="w-full h-full object-contain mb-1" />
+                                                            <span className="text-[10px] text-slate-500 truncate w-full text-center px-1">{item.name}</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                removeFromUserLibrary(item.id);
+                                                                if (imageSrc === item.src) setImageSrc('');
+                                                            }}
+                                                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
+                                                            title="Delete from Library"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            {userLibrary.filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                                                <p className="col-span-full text-center text-slate-400 text-sm py-2">No photos match "{searchQuery}"</p>
+                                            )}
                                         </div>
                                     ) : (
                                         <p className="text-center text-slate-400 text-sm py-2">No photos uploaded yet.</p>
@@ -405,11 +416,8 @@ export const EditorModal: React.FC = () => {
                                             <p className="text-sm">Type above to search OpenSymbols</p>
                                         </div>
                                     ) : (
-                                        <OpenSymbolsResults query={searchQuery} onSelect={async (url) => {
+                                        <OpenSymbolsResults query={searchQuery} onSelect={async (url, symbolName) => {
                                             try {
-                                                // Fetch the image as a blob using a CORS proxy to bypass S3 restrictions
-                                                // We use corsproxy.io (public) or we could set up our own.
-                                                // For a client-side only app, this is a common workaround.
                                                 const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
 
                                                 const response = await fetch(proxyUrl);
@@ -421,10 +429,20 @@ export const EditorModal: React.FC = () => {
                                                 // Process it (resize, compress)
                                                 const result = await processImage(file);
 
+                                                // Use the name from the API or query
+                                                const finalName = symbolName || searchQuery;
+
                                                 // Add to library and select
-                                                addToUserLibrary(result);
+                                                addToUserLibrary({
+                                                    id: `img_os_${Date.now()}`,
+                                                    src: result,
+                                                    name: finalName,
+                                                    date: Date.now()
+                                                });
                                                 setImageSrc(result);
                                                 setLibraryTab('user'); // Switch to user tab to show it's saved
+                                                setSearchQuery(''); // Clear search to show all (or keep it?) - let's clear it so they see the new item if it doesn't match? No, let's keep it but maybe it matches.
+                                                // Actually, if they searched "dog" and added "dog", keeping search query "dog" means they see it in user tab! Perfect.
                                             } catch (err) {
                                                 console.error(err);
                                                 alert("Failed to download symbol. It might be protected.");

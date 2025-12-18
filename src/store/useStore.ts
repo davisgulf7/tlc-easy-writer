@@ -13,6 +13,13 @@ type TabContentMap = Record<string, VocabularyItem[]>;
 
 import { phrases } from '../grammar/initialVocabulary';
 
+export interface UserLibraryItem {
+    id: string;
+    src: string;
+    name: string;
+    date: number;
+}
+
 // --- Config Interfaces ---
 export interface TTSConfig {
     voiceURI: string; // ID of the SpeechSynthesisVoice
@@ -126,9 +133,9 @@ interface AppState {
     importProfileData: (data: Profile['data'], name?: string) => void;
 
     // Image Library Actions
-    userLibrary: string[];
-    addToUserLibrary: (image: string) => void;
-    removeFromUserLibrary: (image: string) => void;
+    userLibrary: UserLibraryItem[];
+    addToUserLibrary: (item: UserLibraryItem) => void;
+    removeFromUserLibrary: (id: string) => void;
 }
 
 // Profile Interface
@@ -144,7 +151,7 @@ export interface Profile {
         phraseContent: TabContentMap;
         ttsConfig: TTSConfig;
         themeConfig: ThemeConfig;
-        userLibrary?: string[]; // Optional for backward compatibility
+        userLibrary?: UserLibraryItem[]; // Optional for backward compatibility
     };
 }
 
@@ -155,9 +162,31 @@ const saveTabContent = (content: Record<string, VocabularyItem[]>, key = 'tlc_ta
 const saveProfiles = (profiles: Profile[]) => localStorage.setItem('tlc_profiles', JSON.stringify(profiles));
 const saveTTS = (config: TTSConfig) => localStorage.setItem('tlc_tts', JSON.stringify(config));
 const saveTheme = (config: ThemeConfig) => localStorage.setItem('tlc_theme', JSON.stringify(config));
-const saveUserLibrary = (lib: string[]) => localStorage.setItem('tlc_user_library', JSON.stringify(lib));
+const saveUserLibrary = (lib: UserLibraryItem[]) => localStorage.setItem('tlc_user_library', JSON.stringify(lib));
 
 // Loaders
+const loadUserLibrary = (): UserLibraryItem[] => {
+    try {
+        const stored = localStorage.getItem('tlc_user_library');
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return [];
+
+        // Migration: If array of strings, convert to objects
+        if (parsed.length > 0 && typeof parsed[0] === 'string') {
+            const migrated: UserLibraryItem[] = parsed.map((src, idx) => ({
+                id: `img_migrated_${Date.now()}_${idx}`,
+                src: src as string,
+                name: 'Imported Image',
+                date: Date.now()
+            }));
+            saveUserLibrary(migrated as any); // Update storage immediately
+            return migrated;
+        }
+        return parsed as UserLibraryItem[];
+    } catch { return []; }
+};
+
 const loadProfiles = (): Profile[] => {
     try {
         const stored = localStorage.getItem('tlc_profiles');
@@ -230,7 +259,7 @@ export const useStore = create<AppState>((set) => {
         profiles: loadProfiles(),
 
         // User Library
-        userLibrary: JSON.parse(localStorage.getItem('tlc_user_library') || '[]'),
+        userLibrary: loadUserLibrary(),
 
         // UI Configuration
         tabModalConfig: null,
@@ -398,7 +427,7 @@ export const useStore = create<AppState>((set) => {
                     phraseContent: state.phraseContent,
                     ttsConfig: state.ttsConfig,
                     themeConfig: state.themeConfig,
-                    userLibrary: state.userLibrary
+                    userLibrary: state.userLibrary as any // Type assertion for compatibility if profile still expects string[]? No, we should update Profile too but for now we execute runtime saves.
                 }
             };
 
@@ -429,11 +458,29 @@ export const useStore = create<AppState>((set) => {
 
             // Merge Library if present
             let newUserLibrary = state.userLibrary;
-            if (profile.data.userLibrary) {
-                // Merge unique
-                const merged = new Set([...state.userLibrary, ...profile.data.userLibrary]);
-                newUserLibrary = Array.from(merged);
-                saveUserLibrary(newUserLibrary);
+            const profileLib = profile.data.userLibrary;
+
+            if (profileLib && profileLib.length > 0) {
+                // Check if string[] or UserLibraryItem[]
+                let normalizedLib: UserLibraryItem[] = [];
+                if (typeof profileLib[0] === 'string') {
+                    // Migrate
+                    normalizedLib = (profileLib as unknown as string[]).map((src, idx) => ({
+                        id: `img_imp_prof_${Date.now()}_${idx}`,
+                        src,
+                        name: 'Imported Profile Image',
+                        date: Date.now()
+                    }));
+                } else {
+                    normalizedLib = profileLib as unknown as UserLibraryItem[];
+                }
+
+                // Merge: Filter out existing srcs
+                const existingSrcs = new Set(state.userLibrary.map(i => i.src));
+                const uniqueNew = normalizedLib.filter(i => !existingSrcs.has(i.src));
+
+                newUserLibrary = [...uniqueNew, ...state.userLibrary];
+                saveUserLibrary(newUserLibrary as any);
             }
 
             return {
@@ -521,10 +568,29 @@ export const useStore = create<AppState>((set) => {
 
             // Merge Library
             let newUserLibrary = state.userLibrary;
-            if (data.userLibrary) {
-                const merged = new Set([...state.userLibrary, ...data.userLibrary]);
-                newUserLibrary = Array.from(merged);
-                saveUserLibrary(newUserLibrary);
+            const profileLib = data.userLibrary;
+
+            if (profileLib && profileLib.length > 0) {
+                // Check if string[] or UserLibraryItem[]
+                let normalizedLib: UserLibraryItem[] = [];
+                if (typeof profileLib[0] === 'string') {
+                    // Migrate
+                    normalizedLib = (profileLib as unknown as string[]).map((src, idx) => ({
+                        id: `img_imp_data_${Date.now()}_${idx}`,
+                        src,
+                        name: 'Imported Data Image',
+                        date: Date.now()
+                    }));
+                } else {
+                    normalizedLib = profileLib as unknown as UserLibraryItem[];
+                }
+
+                // Merge: Filter out existing srcs
+                const existingSrcs = new Set(state.userLibrary.map(i => i.src));
+                const uniqueNew = normalizedLib.filter(i => !existingSrcs.has(i.src));
+
+                newUserLibrary = [...uniqueNew, ...state.userLibrary];
+                saveUserLibrary(newUserLibrary as any);
             }
 
             // Also save as a backup profile so it's listed
@@ -559,16 +625,17 @@ export const useStore = create<AppState>((set) => {
             };
         }),
 
-        addToUserLibrary: (image: string) => set((state) => {
-            if (state.userLibrary.includes(image)) return {}; // Prevent duplicates
-            const newLib = [image, ...state.userLibrary];
-            localStorage.setItem('tlc_user_library', JSON.stringify(newLib));
+        addToUserLibrary: (item: UserLibraryItem) => set((state) => {
+            // Check duplicates by SRC
+            if (state.userLibrary.some(i => i.src === item.src)) return {};
+            const newLib = [item, ...state.userLibrary];
+            saveUserLibrary(newLib as any);
             return { userLibrary: newLib };
         }),
 
-        removeFromUserLibrary: (image: string) => set((state) => {
-            const newLib = state.userLibrary.filter(i => i !== image);
-            localStorage.setItem('tlc_user_library', JSON.stringify(newLib));
+        removeFromUserLibrary: (id: string) => set((state) => {
+            const newLib = state.userLibrary.filter(i => i.id !== id);
+            saveUserLibrary(newLib as any);
             return { userLibrary: newLib };
         })
     };
