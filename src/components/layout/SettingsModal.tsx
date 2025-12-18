@@ -444,10 +444,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                     href="https://www.tlc-mtss.com"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-block px-6 py-3 bg-slate-50 text-blue-600 rounded-xl font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors border border-slate-200 hover:border-blue-200"
+                                    className="inline-block px-6 py-3 bg-slate-50 text-blue-600 rounded-xl font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors border border-slate-200 hover:border-blue-200 mb-6"
                                 >
                                     www.tlc-mtss.com
                                 </a>
+
+                                <div className="border-t border-slate-100 pt-6 mt-2">
+                                    <p className="text-slate-500 text-sm mb-2">
+                                        We use open source OpenSymbols
+                                    </p>
+                                    <a
+                                        href="https://www.opensymbols.org"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 hover:text-blue-700 font-bold"
+                                    >
+                                        www.opensymbols.org
+                                    </a>
+                                </div>
                             </div>
 
                             <p className="text-xs text-slate-400">
