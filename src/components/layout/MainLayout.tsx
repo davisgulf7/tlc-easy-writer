@@ -34,15 +34,15 @@ export const MainLayout: React.FC = () => {
             </div>
 
             {/* Bottom Footer: Level & Settings */}
-            <div className="border-t border-slate-200/50 px-4 py-3 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20 shrink-0 gap-4 overflow-x-auto transition-colors touch-pan-x">
+            <div className="border-t border-slate-200/50 px-3 py-2 sm:px-4 sm:py-3 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20 shrink-0 gap-2 overflow-x-auto transition-colors touch-pan-x">
                 {/* Level Buttons */}
-                <div className="flex gap-2 shrink-0">
+                <div className="flex gap-1 sm:gap-2 shrink-0">
                     {[1, 2, 3].map((lvl) => (
                         <button
                             key={lvl}
                             onClick={() => setLevel(lvl as 1 | 2 | 3)}
                             className={clsx(
-                                "w-10 h-10 rounded-full font-black text-sm flex items-center justify-center transition-all border border-white",
+                                "w-9 h-9 sm:w-10 sm:h-10 rounded-full font-black text-xs sm:text-sm flex items-center justify-center transition-all border border-white",
                                 level === lvl
                                     ? "bg-slate-800 text-white shadow-md scale-110"
                                     : "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600"
@@ -54,7 +54,7 @@ export const MainLayout: React.FC = () => {
                 </div>
 
                 {/* Navigation / Modes Area */}
-                <div className="flex items-center gap-2 flex-1 justify-center">
+                <div className="flex items-center gap-1 sm:gap-2 flex-1 justify-center">
                     {/* Words Button */}
                     <button
                         onClick={() => {
@@ -62,7 +62,7 @@ export const MainLayout: React.FC = () => {
                             clearSentence();
                         }}
                         className={clsx(
-                            "px-6 py-2 rounded-full text-sm font-bold transition-all border border-white",
+                            "px-3 py-1.5 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all border border-white",
                             viewMode === 'vocabulary'
                                 ? "bg-slate-800 text-white shadow-md"
                                 : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700"
@@ -78,7 +78,7 @@ export const MainLayout: React.FC = () => {
                             clearSentence();
                         }}
                         className={clsx(
-                            "px-6 py-2 rounded-full text-sm font-bold transition-all border border-white",
+                            "px-3 py-1.5 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all border border-white",
                             viewMode === 'phrases'
                                 ? "bg-purple-600 text-white shadow-md"
                                 : "bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-100"
