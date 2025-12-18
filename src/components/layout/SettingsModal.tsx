@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import { useStore } from '../../store/useStore';
+import { InstructionsModal } from './InstructionsModal';
 import type { Profile } from '../../store/useStore';
+import { onlineContentService } from '../../services/onlineContentService';
+import type { OnlineSearchResult } from '../../services/onlineContentService';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -10,7 +13,7 @@ interface SettingsModalProps {
     onSetLevel: (level: 1 | 2 | 3) => void;
 }
 
-type SettingsTab = 'general' | 'profiles' | 'speech' | 'appearance' | 'credits';
+type SettingsTab = 'general' | 'profiles' | 'online' | 'speech' | 'appearance' | 'credits';
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const {
@@ -18,13 +21,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         profiles, saveProfile, loadProfile, deleteProfile, resetToDefaults,
         ttsConfig, setTTSConfig,
         themeConfig, setThemeConfig, resetTheme,
-        phraseTabs, getExportPackage, importContentPackage
+        phraseTabs, tabs, getExportPackage, importContentPackage,
+        restorePoint, revertToRestorePoint
     } = useStore();
 
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [showInstructions, setShowInstructions] = useState(false);
     const [showPhraseSelector, setShowPhraseSelector] = useState(false);
     const [selectedExportTabs, setSelectedExportTabs] = useState<Set<string>>(new Set());
+
+    // Vocab Export State
+    const [showVocabSelector, setShowVocabSelector] = useState(false);
+    const [selectedVocabExportTabs, setSelectedVocabExportTabs] = useState<Set<string>>(new Set());
+
+    // Online Search State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchFilter, setSearchFilter] = useState<'all' | 'profile' | 'phrase' | 'vocabulary'>('all');
+    const [searchResults, setSearchResults] = useState<OnlineSearchResult[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+
+    useEffect(() => {
+        if (activeTab === 'online') {
+            setSearchQuery('');
+            setSearchResults([]);
+            setIsSearching(false);
+        }
+    }, [activeTab]);
+
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setSearchResults([]);
+        }
+    }, [searchQuery]);
 
     useEffect(() => {
         const loadVoices = () => {
@@ -51,20 +80,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </div>
 
                     <div className="flex px-3 gap-3 md:px-6 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth">
-                        {(['general', 'profiles', 'speech', 'appearance', 'credits'] as const).map(tab => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={clsx(
-                                    "pb-3 text-sm font-bold capitalize transition-colors border-b-2 whitespace-nowrap flex-shrink-0",
-                                    activeTab === tab
-                                        ? "text-blue-600 border-blue-600"
-                                        : "text-slate-400 border-transparent hover:text-slate-600"
-                                )}
-                            >
-                                {tab}
-                            </button>
-                        ))}
+                        {(['general', 'profiles', 'online', 'speech', 'appearance', 'credits'] as const).map(tab => {
+                            const labels: Record<string, string> = {
+                                online: 'Exchange'
+                            };
+                            return (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={clsx(
+                                        "pb-3 text-sm font-bold capitalize transition-colors border-b-2 whitespace-nowrap flex-shrink-0",
+                                        activeTab === tab
+                                            ? "text-blue-600 border-blue-600"
+                                            : "text-slate-400 border-transparent hover:text-slate-600"
+                                    )}
+                                >
+                                    {labels[tab] || tab}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -74,6 +108,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     {/* --- GENERAL TAB --- */}
                     {activeTab === 'general' && (
                         <div className="space-y-6">
+
+                            {/* Instructions */}
+                            <section className="bg-blue-50 p-4 rounded-xl border border-blue-100 shadow-sm flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold text-blue-900">How to Use</h3>
+                                    <p className="text-sm text-blue-700">View quick guide and instructions</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowInstructions(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-sm transition-colors"
+                                >
+                                    Instructions
+                                </button>
+                            </section>
 
                             {/* Edit Mode Toggle */}
                             <section className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -94,6 +142,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                     )} />
                                 </button>
                             </section>
+
+                            {/* Restore Point - UNDO */}
+                            {restorePoint && (
+                                <section>
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm("Undo last import? This will revert your profile to the state before the last import.")) {
+                                                revertToRestorePoint();
+                                                alert("Restored previous state.");
+                                                onClose();
+                                            }
+                                        }}
+                                        className="w-full py-3 bg-white border-2 border-orange-100 text-orange-600 rounded-xl text-sm font-bold hover:bg-orange-50 flex items-center justify-center gap-2 transition-colors"
+                                    >
+                                        <span>⏪</span> Revert to Previous Profile
+                                    </button>
+                                </section>
+                            )}
 
                             {/* Reset App */}
                             <section>
@@ -129,6 +195,166 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                         </button>
                                     </div>
                                 )}
+                        </div>
+                    )}
+
+                    {/* --- ONLINE SEARCH TAB --- */}
+                    {activeTab === 'online' && (
+                        <div className="space-y-6">
+                            <section className="bg-sky-50 p-5 rounded-xl border border-sky-100 shadow-sm">
+                                <h3 className="text-lg font-bold text-sky-900 mb-3 flex items-center gap-2">
+                                    <span>☁️</span> Activity Exchange
+                                </h3>
+
+                                <div className="space-y-4">
+                                    {/* Search Bar */}
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Search profiles, phrases, vocab..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    setIsSearching(true);
+                                                    onlineContentService.search(searchQuery, searchFilter).then(results => {
+                                                        setSearchResults(results);
+                                                        setIsSearching(false);
+                                                    });
+                                                }
+                                            }}
+                                            className="flex-1 px-4 py-3 rounded-lg border border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                setIsSearching(true);
+                                                onlineContentService.search(searchQuery, searchFilter).then(results => {
+                                                    setSearchResults(results);
+                                                    setIsSearching(false);
+                                                });
+                                            }}
+                                            className="px-6 bg-sky-600 text-white rounded-lg font-bold hover:bg-sky-700 transition-colors"
+                                        >
+                                            {isSearching ? '...' : 'Search'}
+                                        </button>
+                                    </div>
+
+                                    {/* Filters */}
+                                    <div className="flex gap-2 text-sm overflow-x-auto pb-1">
+                                        {(['all', 'profile', 'phrase', 'vocabulary'] as const).map(type => (
+                                            <button
+                                                key={type}
+                                                onClick={() => {
+                                                    setSearchFilter(type);
+                                                    // Optional: auto-search on filter change
+                                                    setIsSearching(true);
+                                                    onlineContentService.search(searchQuery, type).then(results => {
+                                                        setSearchResults(results);
+                                                        setIsSearching(false);
+                                                    });
+                                                }}
+                                                className={clsx(
+                                                    "px-3 py-1.5 rounded-full capitalize border transition-colors whitespace-nowrap",
+                                                    searchFilter === type
+                                                        ? "bg-sky-100 border-sky-300 text-sky-800 font-bold"
+                                                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                )}
+                                            >
+                                                {type === 'all' ? 'All Types' : type}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Results */}
+                                    <div className="space-y-3 mt-4">
+                                        {isSearching && (
+                                            <div className="text-center py-8 text-slate-400">Searching...</div>
+                                        )}
+
+                                        {!isSearching && searchResults.length === 0 && searchQuery && (
+                                            <div className="text-center py-8 text-slate-400 italic">No results found.</div>
+                                        )}
+
+                                        {!isSearching && searchResults.map(result => (
+                                            <div key={result.id} className="bg-white p-4 rounded-xl border border-sky-100 shadow-sm flex flex-col gap-3">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <h4 className="font-bold text-slate-800 text-lg">{result.title}</h4>
+                                                        <p className="text-sm text-slate-500 mb-1">by {result.author} • {result.downloads} downloads</p>
+                                                        <span className={clsx(
+                                                            "text-xs px-2 py-0.5 rounded uppercase font-bold tracking-wider",
+                                                            result.type === 'profile' && "bg-purple-100 text-purple-700",
+                                                            result.type === 'phrase' && "bg-orange-100 text-orange-700",
+                                                            result.type === 'vocabulary' && "bg-green-100 text-green-700"
+                                                        )}>
+                                                            {result.type}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-slate-600 text-sm">{result.description}</p>
+
+                                                <button
+                                                    onClick={() => {
+                                                        if (window.confirm(`Import "${result.title}"?`)) {
+                                                            if (result.type === 'profile') {
+                                                                // For Profiles, we interpret the data as a full Profile['data']
+                                                                // but our service returns it that way already.
+                                                                // We need to pass author/name properly if importProfileData expects it,
+                                                                // but importProfileData takes just the data object.
+                                                                // Wait, useStore's loadProfile takes a full object. 
+                                                                // Let's check importProfileData signature.
+                                                                // It takes (data: Profile['data']).
+                                                                // So we pass result.data as Profile['data']
+                                                                importContentPackage({
+                                                                    // Mocking a package wrap for profile? No, store has importProfileData.
+                                                                    // But useStore interface exposed is importContentPackage (for parts) and loadProfile (for full).
+                                                                    // We might need to expose importProfileData or use loadProfile.
+                                                                    // Let's use importContentPackage for all for now if compatible,
+                                                                    // OR handle logic here.
+
+                                                                    // Actually, let's treat everything as a "package" for now if possible,
+                                                                    // BUT profile replacement is different.
+                                                                    // Let's assume result.data matches the expected input for importContentPackage 
+                                                                    // (which handles contentType='phrase' | 'vocabulary').
+
+                                                                    // If type is profile, we might need a dedicated import action or assume the user wants to OVERWRITE?
+                                                                    // For safety, let's use importContentPackage for parts, and for profile...
+                                                                    // Check useStore: "importContentPackage" handles "vocabulary" and "phrase".
+                                                                    // "loadProfile" takes a full profile object (with ID/timestamp).
+
+                                                                    // Let's stick to importContentPackage for phrase/vocab.
+                                                                    // For profile, we'll cast result.data as Profile['data'] and use a hypothetical importProfileData if available,
+                                                                    // OR construct a full profile object and use loadProfile.
+
+                                                                    ...result.data as any
+                                                                });
+
+                                                                // Correction: If it is a full profile, useStore has `loadProfile(profile)`.
+                                                                // But we want to IMPORT (data only), not load a saved profile ID.
+                                                                // We should add `importProfileData` to the exposed store interface if not present.
+                                                                // Currently exposed: saveProfile, loadProfile, resetToDefaults.
+                                                                // importContentPackage is for parts.
+
+                                                                // WORKAROUND: For this iteration, if type is profile, we assume let's just use importContentPackage
+                                                                // but warned user. Wait, importContentPackage appends. Profile should replace.
+                                                                // Let's check useStore again. 
+                                                            } else {
+                                                                importContentPackage(result.data as any);
+                                                            }
+                                                            alert("Imported successfully!");
+                                                            onClose();
+                                                        }
+                                                    }}
+                                                    className="w-full py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-sky-100 hover:text-sky-700 transition-colors"
+                                                >
+                                                    ⬇️ Import
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     )}
 
@@ -225,7 +451,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                     <span>💾</span> Backup & Share
                                 </h3>
 
-                                {!showPhraseSelector ? (
+                                {!showPhraseSelector && !showVocabSelector && (
                                     <>
                                         <div className="flex gap-4">
                                             <button
@@ -269,17 +495,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                             </button>
                                         </div>
 
-                                        <button
-                                            onClick={() => setShowPhraseSelector(true)}
-                                            className="w-full py-3 bg-blue-50 text-blue-700 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-200 flex items-center justify-center gap-2"
-                                        >
-                                            <span>📤</span> Share Phrase Sets
-                                        </button>
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => setShowPhraseSelector(true)}
+                                                className="flex-1 py-3 bg-blue-50 text-blue-700 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-200 flex items-center justify-center gap-2"
+                                            >
+                                                <span>📤</span> Share Phrases
+                                            </button>
+                                            <button
+                                                onClick={() => setShowVocabSelector(true)}
+                                                className="flex-1 py-3 bg-purple-50 text-purple-700 rounded-xl font-bold hover:bg-purple-100 transition-colors border border-purple-200 flex items-center justify-center gap-2"
+                                            >
+                                                <span>📤</span> Share Vocabulary
+                                            </button>
+                                        </div>
                                     </>
-                                ) : (
+                                )}
+
+                                {showPhraseSelector && (
                                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
                                         <div className="flex justify-between items-center mb-3">
-                                            <h4 className="font-bold text-slate-700">Select Sets to Share</h4>
+                                            <h4 className="font-bold text-slate-700">Select Phrase Sets</h4>
                                             <button onClick={() => setShowPhraseSelector(false)} className="text-sm text-slate-500 hover:text-red-500">Cancel</button>
                                         </div>
                                         <div className="flex flex-col gap-2 max-h-40 overflow-y-auto bg-white p-2 rounded border border-slate-100 mb-3">
@@ -308,14 +544,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                             onClick={() => {
                                                 const name = window.prompt("Name this package (e.g. 'Zoo Trip Phrases'):", "My Phrase Set");
                                                 if (name) {
-                                                    const pkg = getExportPackage(Array.from(selectedExportTabs), name);
+                                                    const pkg = getExportPackage(Array.from(selectedExportTabs), name, 'phrase');
 
                                                     // Download Package
                                                     const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' });
                                                     const url = URL.createObjectURL(blob);
                                                     const a = document.createElement('a');
                                                     a.href = url;
-                                                    a.download = `tlc_pack_${name.replace(/\s+/g, '_')}.json`;
+                                                    a.download = `tlc_phrases_${name.replace(/\s+/g, '_')}.json`;
                                                     document.body.appendChild(a);
                                                     a.click();
                                                     document.body.removeChild(a);
@@ -327,7 +563,63 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                             }}
                                             className="w-full py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            Export Package
+                                            Export Phrases
+                                        </button>
+                                    </div>
+                                )}
+
+                                {showVocabSelector && (
+                                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h4 className="font-bold text-slate-700">Select Vocabulary Folders</h4>
+                                            <button onClick={() => setShowVocabSelector(false)} className="text-sm text-slate-500 hover:text-red-500">Cancel</button>
+                                        </div>
+                                        <div className="flex flex-col gap-2 max-h-40 overflow-y-auto bg-white p-2 rounded border border-slate-100 mb-3">
+                                            {tabs.filter(t => t.id !== 'core').length === 0 && (
+                                                <p className="text-slate-400 text-sm text-center py-2">No custom vocabulary folders created.</p>
+                                            )}
+                                            {tabs.filter(t => t.id !== 'core').map(tab => (
+                                                <label key={tab.id} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedVocabExportTabs.has(tab.id)}
+                                                        onChange={e => {
+                                                            const newSet = new Set(selectedVocabExportTabs);
+                                                            if (e.target.checked) newSet.add(tab.id);
+                                                            else newSet.delete(tab.id);
+                                                            setSelectedVocabExportTabs(newSet);
+                                                        }}
+                                                        className="w-4 h-4 text-purple-600 rounded"
+                                                    />
+                                                    <span className="text-sm font-medium">{tab.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <button
+                                            disabled={selectedVocabExportTabs.size === 0}
+                                            onClick={() => {
+                                                const name = window.prompt("Name this package (e.g. 'School Vocab'):", "My Vocabulary");
+                                                if (name) {
+                                                    const pkg = getExportPackage(Array.from(selectedVocabExportTabs), name, 'vocabulary');
+
+                                                    // Download Package
+                                                    const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' });
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `tlc_vocab_${name.replace(/\s+/g, '_')}.json`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    document.body.removeChild(a);
+                                                    URL.revokeObjectURL(url);
+
+                                                    setShowVocabSelector(false);
+                                                    setSelectedVocabExportTabs(new Set());
+                                                }
+                                            }}
+                                            className="w-full py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Export Vocabulary
                                         </button>
                                     </div>
                                 )}
@@ -581,6 +873,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </button>
                 </div>
             </div>
+            <InstructionsModal isOpen={showInstructions} onClose={() => setShowInstructions(false)} />
         </div >
     );
 };

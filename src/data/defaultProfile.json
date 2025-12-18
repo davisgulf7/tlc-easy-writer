@@ -1,0 +1,558 @@
+{
+  "userOverrides": {},
+  "tabs": [
+    {
+      "id": "core",
+      "label": "Main",
+      "isRemovable": false
+    }
+  ],
+  "tabContent": {},
+  "phraseTabs": [
+    {
+      "id": "core",
+      "label": "Phrases",
+      "isRemovable": false
+    }
+  ],
+  "phraseContent": {
+    "core": [
+      {
+        "id": "p_yes",
+        "label": "Yes",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/yes.png"
+      },
+      {
+        "id": "p_no",
+        "label": "No",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/no.png"
+      },
+      {
+        "id": "p_help",
+        "label": "I need help",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/i_need_help.png"
+      },
+      {
+        "id": "p_like",
+        "label": "I like that",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/i_like_that.png"
+      },
+      {
+        "id": "p_dontlike",
+        "label": "I don't like that",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/i_dont_like_that.png"
+      },
+      {
+        "id": "p_stop",
+        "label": "Stop",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/stop.png"
+      },
+      {
+        "id": "p_want",
+        "label": "I want",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/i_want.png"
+      },
+      {
+        "id": "p_bathroom",
+        "label": "Bathroom",
+        "type": "phrase",
+        "level": 1,
+        "icon": "symbols/bathroom.png"
+      },
+      {
+        "id": "p_hungry",
+        "label": "I am hungry",
+        "type": "phrase",
+        "level": 2,
+        "icon": "symbols/i_am_hungry.png"
+      },
+      {
+        "id": "p_thirsty",
+        "label": "I am thirsty",
+        "type": "phrase",
+        "level": 2,
+        "icon": "symbols/i_am_thirsty.png"
+      },
+      {
+        "id": "p_tired",
+        "label": "I am tired",
+        "type": "phrase",
+        "level": 2,
+        "icon": "symbols/i_am_tired.png"
+      },
+      {
+        "id": "p_pain",
+        "label": "In pain",
+        "type": "phrase",
+        "level": 2,
+        "icon": "symbols/in_pain.png"
+      }
+    ]
+  },
+  "ttsConfig": {
+    "voiceURI": "",
+    "rate": 1,
+    "pitch": 1
+  },
+  "themeConfig": {
+    "mode": "liquid",
+    "backgroundColor": "#01056f",
+    "categoryColors": {
+      "subject": "#FACC15",
+      "verb": "#4ADE80",
+      "qualifier": "#60A5FA",
+      "object": "#FB923C",
+      "phrase": "#f3e8ff"
+    }
+  },
+  "userLibrary": [],
+  "coreVocabulary": {
+    "subjects": [
+      {
+        "id": "s_i",
+        "type": "subject",
+        "label": "I",
+        "level": 1,
+        "person": "1",
+        "number": "sg",
+        "icon": "symbols/i.png"
+      },
+      {
+        "id": "s_you",
+        "type": "subject",
+        "label": "You",
+        "level": 1,
+        "person": "2",
+        "number": "sg",
+        "icon": "symbols/you.png"
+      },
+      {
+        "id": "s_we",
+        "type": "subject",
+        "label": "We",
+        "level": 1,
+        "person": "1",
+        "number": "pl",
+        "icon": "symbols/we.png"
+      },
+      {
+        "id": "s_mom",
+        "type": "subject",
+        "label": "My Mom",
+        "level": 1,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_mom.png"
+      },
+      {
+        "id": "s_dad",
+        "type": "subject",
+        "label": "My Dad",
+        "level": 1,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_dad.png"
+      },
+      {
+        "id": "s_friend",
+        "type": "subject",
+        "label": "My Friend",
+        "level": 1,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_friend.png"
+      },
+      {
+        "id": "s_teacher",
+        "type": "subject",
+        "label": "My Teacher",
+        "level": 1,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_teacher.png"
+      },
+      {
+        "id": "s_dog",
+        "type": "subject",
+        "label": "My Dog",
+        "level": 1,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_dog.png"
+      },
+      {
+        "id": "s_brother",
+        "type": "subject",
+        "label": "My Brother",
+        "level": 2,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_brother.png"
+      },
+      {
+        "id": "s_sister",
+        "type": "subject",
+        "label": "My Sister",
+        "level": 2,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_sister.png"
+      },
+      {
+        "id": "s_class",
+        "type": "subject",
+        "label": "My Class",
+        "level": 2,
+        "person": "3",
+        "number": "pl",
+        "icon": "symbols/my_class.png"
+      },
+      {
+        "id": "s_baby",
+        "type": "subject",
+        "label": "My Baby",
+        "level": 2,
+        "person": "3",
+        "number": "sg",
+        "icon": "symbols/my_baby.svg"
+      }
+    ],
+    "verbs": [
+      {
+        "id": "v_like",
+        "type": "verb",
+        "label": "like",
+        "level": 1,
+        "baseForm": "like",
+        "thirdPersonSingular": "likes",
+        "icon": "symbols/like.svg"
+      },
+      {
+        "id": "v_dontlike",
+        "type": "verb",
+        "label": "don't like",
+        "level": 1,
+        "baseForm": "don't like",
+        "thirdPersonSingular": "doesn't like",
+        "icon": "symbols/dont_like.svg"
+      },
+      {
+        "id": "v_want",
+        "type": "verb",
+        "label": "want",
+        "level": 1,
+        "baseForm": "want",
+        "thirdPersonSingular": "wants",
+        "icon": "symbols/want.png"
+      },
+      {
+        "id": "v_love",
+        "type": "verb",
+        "label": "love",
+        "level": 1,
+        "baseForm": "love",
+        "thirdPersonSingular": "loves",
+        "icon": "symbols/love.svg"
+      },
+      {
+        "id": "v_need",
+        "type": "verb",
+        "label": "need",
+        "level": 1,
+        "baseForm": "need",
+        "thirdPersonSingular": "needs",
+        "icon": "symbols/need.png"
+      },
+      {
+        "id": "v_have",
+        "type": "verb",
+        "label": "have",
+        "level": 1,
+        "baseForm": "have",
+        "thirdPersonSingular": "has",
+        "icon": "symbols/have.png"
+      },
+      {
+        "id": "v_see",
+        "type": "verb",
+        "label": "see",
+        "level": 1,
+        "baseForm": "see",
+        "thirdPersonSingular": "sees",
+        "icon": "symbols/see.svg"
+      },
+      {
+        "id": "v_hear",
+        "type": "verb",
+        "label": "hear",
+        "level": 1,
+        "baseForm": "hear",
+        "thirdPersonSingular": "hears",
+        "icon": "symbols/hear.svg"
+      },
+      {
+        "id": "v_eat",
+        "type": "verb",
+        "label": "eat",
+        "level": 2,
+        "baseForm": "eat",
+        "thirdPersonSingular": "eats",
+        "icon": "symbols/eat.png"
+      },
+      {
+        "id": "v_play",
+        "type": "verb",
+        "label": "play",
+        "level": 2,
+        "baseForm": "play",
+        "thirdPersonSingular": "plays",
+        "icon": "symbols/play.png"
+      },
+      {
+        "id": "v_go",
+        "type": "verb",
+        "label": "go",
+        "level": 2,
+        "baseForm": "go",
+        "thirdPersonSingular": "goes",
+        "icon": "symbols/go.svg"
+      },
+      {
+        "id": "v_make",
+        "type": "verb",
+        "label": "make",
+        "level": 2,
+        "baseForm": "make",
+        "thirdPersonSingular": "makes",
+        "icon": "symbols/make.png"
+      }
+    ],
+    "qualifiers": [
+      {
+        "id": "q_big",
+        "type": "qualifier",
+        "label": "big",
+        "level": 1,
+        "icon": "symbols/big.png"
+      },
+      {
+        "id": "q_small",
+        "type": "qualifier",
+        "label": "small",
+        "level": 1,
+        "icon": "symbols/small.png"
+      },
+      {
+        "id": "q_red",
+        "type": "qualifier",
+        "label": "red",
+        "level": 1,
+        "icon": "symbols/red.png"
+      },
+      {
+        "id": "q_blue",
+        "type": "qualifier",
+        "label": "blue",
+        "level": 1,
+        "icon": "symbols/blue.png"
+      },
+      {
+        "id": "q_loud",
+        "type": "qualifier",
+        "label": "loud",
+        "level": 1,
+        "icon": "symbols/loud.png"
+      },
+      {
+        "id": "q_quiet",
+        "type": "qualifier",
+        "label": "quiet",
+        "level": 1,
+        "icon": "symbols/quiet.svg"
+      },
+      {
+        "id": "q_happy",
+        "type": "qualifier",
+        "label": "happy",
+        "level": 1,
+        "icon": "symbols/happy.svg"
+      },
+      {
+        "id": "q_sad",
+        "type": "qualifier",
+        "label": "sad",
+        "level": 1,
+        "icon": "symbols/sad.png"
+      },
+      {
+        "id": "q_fast",
+        "type": "qualifier",
+        "label": "fast",
+        "level": 2,
+        "icon": "symbols/fast.png"
+      },
+      {
+        "id": "q_slow",
+        "type": "qualifier",
+        "label": "slow",
+        "level": 2,
+        "icon": "symbols/slow.png"
+      },
+      {
+        "id": "q_soft",
+        "type": "qualifier",
+        "label": "soft",
+        "level": 2,
+        "icon": "symbols/soft.png"
+      },
+      {
+        "id": "q_tasty",
+        "type": "qualifier",
+        "label": "tasty",
+        "level": 2,
+        "icon": "symbols/tasty.png"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o_ball",
+        "type": "object",
+        "label": "ball",
+        "level": 1,
+        "nounType": "countable",
+        "defaultNumber": "sg",
+        "articlePolicy": "auto_indefinite",
+        "pluralForm": "balls",
+        "icon": "symbols/ball.png"
+      },
+      {
+        "id": "o_book",
+        "type": "object",
+        "label": "book",
+        "level": 1,
+        "nounType": "countable",
+        "defaultNumber": "sg",
+        "articlePolicy": "auto_indefinite",
+        "pluralForm": "books",
+        "icon": "symbols/book.png"
+      },
+      {
+        "id": "o_dog",
+        "type": "object",
+        "label": "dog",
+        "level": 1,
+        "nounType": "countable",
+        "defaultNumber": "sg",
+        "articlePolicy": "auto_indefinite",
+        "pluralForm": "dogs",
+        "icon": "symbols/dog.png"
+      },
+      {
+        "id": "o_toys",
+        "type": "object",
+        "label": "toys",
+        "level": 1,
+        "nounType": "set_plural",
+        "defaultNumber": "pl",
+        "articlePolicy": "none",
+        "icon": "symbols/toys.png"
+      },
+      {
+        "id": "o_music",
+        "type": "object",
+        "label": "music",
+        "level": 1,
+        "nounType": "mass",
+        "defaultNumber": "sg",
+        "articlePolicy": "none",
+        "icon": "symbols/music.png"
+      },
+      {
+        "id": "o_pizza",
+        "type": "object",
+        "label": "pizza",
+        "level": 1,
+        "nounType": "countable",
+        "defaultNumber": "sg",
+        "articlePolicy": "auto_indefinite",
+        "pluralForm": "pizzas",
+        "icon": "symbols/pizza.png"
+      },
+      {
+        "id": "o_playground",
+        "type": "object",
+        "label": "playground",
+        "level": 1,
+        "nounType": "proper",
+        "defaultNumber": "sg",
+        "articlePolicy": "definite",
+        "icon": "symbols/playground.png"
+      },
+      {
+        "id": "o_school",
+        "type": "object",
+        "label": "school",
+        "level": 1,
+        "nounType": "proper",
+        "defaultNumber": "sg",
+        "articlePolicy": "none",
+        "icon": "symbols/school.png"
+      },
+      {
+        "id": "o_games",
+        "type": "object",
+        "label": "games",
+        "level": 2,
+        "nounType": "set_plural",
+        "defaultNumber": "pl",
+        "articlePolicy": "none",
+        "icon": "symbols/games.png"
+      },
+      {
+        "id": "o_icecream",
+        "type": "object",
+        "label": "ice cream",
+        "level": 2,
+        "nounType": "mass",
+        "defaultNumber": "sg",
+        "articlePolicy": "none",
+        "icon": "symbols/ice_cream.png"
+      },
+      {
+        "id": "o_tablet",
+        "type": "object",
+        "label": "tablet",
+        "level": 2,
+        "nounType": "countable",
+        "defaultNumber": "sg",
+        "articlePolicy": "auto_indefinite",
+        "pluralForm": "tablets",
+        "icon": "symbols/tablet.png"
+      },
+      {
+        "id": "o_cars",
+        "type": "object",
+        "label": "cars",
+        "level": 2,
+        "nounType": "set_plural",
+        "defaultNumber": "pl",
+        "articlePolicy": "none",
+        "icon": "symbols/cars.png"
+      }
+    ]
+  }
+}

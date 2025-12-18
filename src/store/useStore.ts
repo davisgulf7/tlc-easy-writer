@@ -11,7 +11,14 @@ export interface Tab {
 
 type TabContentMap = Record<string, VocabularyItem[]>;
 
-import { phrases } from '../grammar/initialVocabulary';
+import defaultProfile from '../data/defaultProfile.json';
+
+interface CoreVocabulary {
+    subjects: VocabularyItem[];
+    verbs: VocabularyItem[];
+    qualifiers: VocabularyItem[];
+    objects: VocabularyItem[];
+}
 
 export interface UserLibraryItem {
     id: string;
@@ -40,23 +47,8 @@ export interface ThemeConfig {
 }
 
 // Default Configuration
-const DEFAULT_TTS: TTSConfig = {
-    voiceURI: '', // Default system voice
-    rate: 1.0,
-    pitch: 1.0
-};
-
-const DEFAULT_THEME: ThemeConfig = {
-    mode: 'liquid', // kept for structure, though UI only uses flat now
-    backgroundColor: '#01056f', // Deep Blue default
-    categoryColors: {
-        subject: '#FACC15',  // Who (Yellow)
-        verb: '#4ADE80',     // Action (Green)
-        qualifier: '#60A5FA',// Describe (Blue)
-        object: '#FB923C',   // What (Orange)
-        phrase: '#f3e8ff'    // purple-50
-    }
-};
+const DEFAULT_TTS: TTSConfig = defaultProfile.ttsConfig;
+const DEFAULT_THEME: ThemeConfig = defaultProfile.themeConfig as ThemeConfig;
 
 interface AppState {
     sentence: VocabularyItem[];    // State
@@ -66,6 +58,7 @@ interface AppState {
     isEditorOpen: boolean;
     editingItem: VocabularyItem | null;
     userOverrides: Record<string, VocabularyItem>; // Map ID -> Item
+    restorePoint: Profile['data'] | null;
 
     // View Mode
     viewMode: 'vocabulary' | 'phrases';
@@ -74,6 +67,7 @@ interface AppState {
     tabs: Tab[];
     activeTabId: string;
     tabContent: Record<string, VocabularyItem[]>; // Map TabID -> Items
+    coreVocabulary: CoreVocabulary;
 
     // Phrase Mode Tabs & Content
     phraseTabs: Tab[];
@@ -138,8 +132,12 @@ interface AppState {
     removeFromUserLibrary: (id: string) => void;
 
     // Content Sharing
-    getExportPackage: (tabIds: string[], name: string) => ContentPackage;
+    getExportPackage: (tabIds: string[], name: string, type?: 'vocabulary' | 'phrase') => ContentPackage;
     importContentPackage: (pkg: ContentPackage) => void;
+
+    // Restore Actions
+    saveRestorePoint: () => void;
+    revertToRestorePoint: () => void;
 }
 
 // Profile Interface
@@ -167,6 +165,7 @@ const saveProfiles = (profiles: Profile[]) => localStorage.setItem('tlc_profiles
 const saveTTS = (config: TTSConfig) => localStorage.setItem('tlc_tts', JSON.stringify(config));
 const saveTheme = (config: ThemeConfig) => localStorage.setItem('tlc_theme', JSON.stringify(config));
 const saveUserLibrary = (lib: UserLibraryItem[]) => localStorage.setItem('tlc_user_library', JSON.stringify(lib));
+const saveRestorePointStorage = (data: Profile['data']) => localStorage.setItem('tlc_restore_point', JSON.stringify(data));
 
 // Loaders
 const loadUserLibrary = (): UserLibraryItem[] => {
@@ -242,11 +241,11 @@ const loadOverrides = (): Record<string, VocabularyItem> => {
     } catch { return {}; }
 };
 
-const loadTabs = (key = 'tlc_tabs'): Tab[] => {
+const loadTabs = (key = 'tlc_tabs', defaults: Tab[] = defaultProfile.tabs): Tab[] => {
     try {
         const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : [{ id: 'core', label: 'Main', isRemovable: false }];
-    } catch { return [{ id: 'core', label: 'Main', isRemovable: false }]; }
+        return stored ? JSON.parse(stored) : defaults;
+    } catch { return defaults; }
 };
 
 const loadTabContent = (key = 'tlc_tab_content', defaultContent = {}): TabContentMap => {
@@ -254,6 +253,13 @@ const loadTabContent = (key = 'tlc_tab_content', defaultContent = {}): TabConten
         const stored = localStorage.getItem(key);
         return stored ? JSON.parse(stored) : defaultContent;
     } catch { return defaultContent; }
+};
+
+const loadRestorePoint = (): Profile['data'] | null => {
+    try {
+        const stored = localStorage.getItem('tlc_restore_point');
+        return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
 };
 
 export const useStore = create<AppState>((set) => {
@@ -268,15 +274,16 @@ export const useStore = create<AppState>((set) => {
 
         viewMode: 'vocabulary',
 
-        // Tab State
-        tabs: loadTabs('tlc_tabs'),
+        // Level 3 Tabs
+        tabs: loadTabs('tlc_tabs', defaultProfile.tabs),
         activeTabId: 'core',
-        tabContent: loadTabContent('tlc_tab_content'),
+        tabContent: loadTabContent('tlc_tab_content', defaultProfile.tabContent),
+        coreVocabulary: defaultProfile.coreVocabulary as CoreVocabulary,
 
-        // Phrase Mode
-        phraseTabs: loadTabs('tlc_phrase_tabs'),
+        // Phrases
+        phraseTabs: loadTabs('tlc_phrase_tabs', defaultProfile.phraseTabs),
         activePhraseTabId: 'core',
-        phraseContent: loadTabContent('tlc_phrase_content', { 'core': phrases }),
+        phraseContent: loadTabContent('tlc_phrase_content', defaultProfile.phraseContent),
 
         // Configuration
         ttsConfig: loadTTS(),
@@ -287,6 +294,9 @@ export const useStore = create<AppState>((set) => {
 
         // User Library
         userLibrary: loadUserLibrary(),
+
+        // Restore Point
+        restorePoint: loadRestorePoint(),
 
         // UI Configuration
         tabModalConfig: null,
@@ -546,12 +556,14 @@ export const useStore = create<AppState>((set) => {
             localStorage.removeItem('tlc_user_library');
 
             // Reload from code defaults
+            // Reload from code defaults
             return {
-                userOverrides: {},
-                tabs: [{ id: 'core', label: 'Main', isRemovable: false }],
-                tabContent: {},
-                phraseTabs: [{ id: 'core', label: 'Phrases', isRemovable: false }],
-                phraseContent: { 'core': phrases },
+                userOverrides: defaultProfile.userOverrides,
+                tabs: defaultProfile.tabs,
+                tabContent: defaultProfile.tabContent,
+                phraseTabs: defaultProfile.phraseTabs,
+                phraseContent: defaultProfile.phraseContent as Record<string, VocabularyItem[]>,
+                coreVocabulary: defaultProfile.coreVocabulary as CoreVocabulary,
                 ttsConfig: DEFAULT_TTS,
                 themeConfig: DEFAULT_THEME,
                 activeTabId: 'core',
@@ -568,6 +580,9 @@ export const useStore = create<AppState>((set) => {
         }),
 
         importProfileData: (data: Profile['data'], name?: string) => set((state) => {
+            // Auto-Backup before overwrite
+            state.saveRestorePoint();
+            const currentRestorePoint = useStore.getState().restorePoint; // Re-fetch after save
             // Sanitize: Ensure NO phrases leak into Vocabulary sections
             const cleanUserOverrides = Object.fromEntries(
                 Object.entries(data.userOverrides).filter(([_, item]) => item.type !== 'phrase')
@@ -650,7 +665,8 @@ export const useStore = create<AppState>((set) => {
                 isEditorOpen: false,
                 editingItem: null,
                 // Clear sentence to prevent TTS re-trigger or confusion
-                sentence: []
+                sentence: [],
+                restorePoint: currentRestorePoint
             };
         }),
 
@@ -670,11 +686,15 @@ export const useStore = create<AppState>((set) => {
 
         // --- Content Sharing (Partial Export) ---
 
-        getExportPackage: (tabIds: string[], name: string): ContentPackage => {
+        getExportPackage: (tabIds: string[], name: string, type: 'vocabulary' | 'phrase' = 'phrase'): ContentPackage => {
             const state = useStore.getState(); // Access current state
 
+            // Determine Source
+            const sourceTabs = type === 'vocabulary' ? state.tabs : state.phraseTabs;
+            const sourceContent = type === 'vocabulary' ? state.tabContent : state.phraseContent;
+
             // 1. Extract Tabs
-            const selectedTabs = state.phraseTabs.filter(t => tabIds.includes(t.id));
+            const selectedTabs = sourceTabs.filter(t => tabIds.includes(t.id));
 
             // 2. Extract Content & Find Image Dependencies
             const selectedContent: Record<string, VocabularyItem[]> = {};
@@ -682,7 +702,7 @@ export const useStore = create<AppState>((set) => {
             const processedImages = new Set<string>(); // Track by src to avoid duplicates
 
             selectedTabs.forEach(tab => {
-                const items = state.phraseContent[tab.id] || [];
+                const items = sourceContent[tab.id] || [];
                 selectedContent[tab.id] = items;
 
                 // Walk items to find user images
@@ -701,6 +721,7 @@ export const useStore = create<AppState>((set) => {
 
             return {
                 type: 'package',
+                contentType: type,
                 name,
                 timestamp: Date.now(),
                 tabs: selectedTabs,
@@ -710,13 +731,26 @@ export const useStore = create<AppState>((set) => {
         },
 
         importContentPackage: (pkg: ContentPackage) => set((state) => {
+            // Auto-Backup before import (even partial imports can be destructive or unwanted)
+            state.saveRestorePoint();
+            const currentRestorePoint = useStore.getState().restorePoint;
+
+            // Determine Target
+            const importType = pkg.contentType || 'phrase';
+            const isVocab = importType === 'vocabulary';
+
+            const targetTabs = isVocab ? state.tabs : state.phraseTabs;
+            const targetContent = isVocab ? state.tabContent : state.phraseContent;
+            const saveTabsKey = isVocab ? 'tlc_tabs' : 'tlc_phrase_tabs';
+            const saveContentKey = isVocab ? 'tlc_tab_content' : 'tlc_phrase_content';
+
             // 1. Merge Images (Deduplicate)
             let newUserLibrary = state.userLibrary;
             if (pkg.images && pkg.images.length > 0) {
                 const existingSrcs = new Set(state.userLibrary.map(i => i.src));
                 const uniqueNew = pkg.images.filter(i => !existingSrcs.has(i.src));
                 newUserLibrary = [...uniqueNew, ...state.userLibrary];
-                saveUserLibrary(newUserLibrary);
+                saveUserLibrary(newUserLibrary as any);
             }
 
             // 2. Remap Tabs to ensure ID uniqueness
@@ -727,7 +761,7 @@ export const useStore = create<AppState>((set) => {
 
                 // Rename if duplicate label exists?
                 // Simple check: if label exists, append (Imported)
-                const labelExists = state.phraseTabs.some(t => t.label === tab.label);
+                const labelExists = targetTabs.some(t => t.label === tab.label);
                 return {
                     ...tab,
                     id: newId,
@@ -745,16 +779,72 @@ export const useStore = create<AppState>((set) => {
             });
 
             // 4. Save Updates
-            const updatedTabs = [...state.phraseTabs, ...newTabs];
-            const updatedContent = { ...state.phraseContent, ...newContentEntries };
+            const updatedTabs = [...targetTabs, ...newTabs];
+            const updatedContent = { ...targetContent, ...newContentEntries };
 
-            saveTabs(updatedTabs, 'tlc_phrase_tabs');
-            saveTabContent(updatedContent, 'tlc_phrase_content');
+            saveTabs(updatedTabs, saveTabsKey);
+            saveTabContent(updatedContent, saveContentKey);
+
+            if (isVocab) {
+                return {
+                    userLibrary: newUserLibrary,
+                    tabs: updatedTabs,
+                    tabContent: updatedContent,
+                    restorePoint: currentRestorePoint
+                };
+            } else {
+                return {
+                    userLibrary: newUserLibrary,
+                    phraseTabs: updatedTabs,
+                    phraseContent: updatedContent,
+                    restorePoint: currentRestorePoint
+                };
+            }
+        }),
+
+
+        saveRestorePoint: () => set((state) => {
+            const snapshot: Profile['data'] = {
+                userOverrides: state.userOverrides,
+                tabs: state.tabs,
+                tabContent: state.tabContent,
+                phraseTabs: state.phraseTabs,
+                phraseContent: state.phraseContent,
+                ttsConfig: state.ttsConfig,
+                themeConfig: state.themeConfig,
+                userLibrary: state.userLibrary
+            };
+            saveRestorePointStorage(snapshot);
+            return { restorePoint: snapshot };
+        }),
+
+        revertToRestorePoint: () => set((state) => {
+            const data = state.restorePoint;
+            if (!data) return {};
+
+            // Restore Store State
+            saveOverrides(data.userOverrides);
+            saveTabs(data.tabs, 'tlc_tabs');
+            saveTabContent(data.tabContent, 'tlc_tab_content');
+            saveTabs(data.phraseTabs, 'tlc_phrase_tabs');
+            saveTabContent(data.phraseContent, 'tlc_phrase_content');
+            saveTTS(data.ttsConfig);
+            saveTheme(data.themeConfig);
+            if (data.userLibrary) saveUserLibrary(data.userLibrary);
 
             return {
-                userLibrary: newUserLibrary,
-                phraseTabs: updatedTabs,
-                phraseContent: updatedContent
+                userOverrides: data.userOverrides,
+                tabs: data.tabs,
+                tabContent: data.tabContent,
+                phraseTabs: data.phraseTabs,
+                phraseContent: data.phraseContent,
+                ttsConfig: data.ttsConfig,
+                themeConfig: data.themeConfig,
+                userLibrary: data.userLibrary || state.userLibrary,
+                // Don't nuke restore point, keep it until next import overwrites it?
+                // Or clear it? Keeping it allows re-revert if they mess up again.
+                // Keeping it is safer.
+                restorePoint: data
             };
         })
     };
@@ -762,6 +852,7 @@ export const useStore = create<AppState>((set) => {
 
 export interface ContentPackage {
     type: 'package';
+    contentType?: 'vocabulary' | 'phrase';
     name: string;
     timestamp: number;
     tabs: Tab[];

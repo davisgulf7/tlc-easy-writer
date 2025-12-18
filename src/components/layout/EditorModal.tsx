@@ -4,8 +4,10 @@ import { useStore } from '../../store/useStore';
 import type { VocabularyItem, SubjectItem, VerbItem, ObjectItem, QualifierItem } from '../../grammar/types';
 
 // Default Icons
-import { systemLibrary } from '../../grammar/initialVocabulary';
+// Default Icons
 import { processImage } from '../../utils/imageUtils';
+
+import { useMemo } from 'react';
 
 export const EditorModal: React.FC = () => {
     // Consume EVERYTHING from useStore
@@ -24,10 +26,40 @@ export const EditorModal: React.FC = () => {
         viewMode,
         activePhraseTabId,
         // Library
+        // Library
         userLibrary,
         addToUserLibrary,
-        removeFromUserLibrary
+        removeFromUserLibrary,
+        // Core Data for System Library
+        coreVocabulary,
+        phraseContent
     } = useStore();
+
+    // Compute System Library dynamically
+    const systemLibrary = useMemo(() => {
+        const icons = new Set<string>();
+
+        // 1. Add Core Vocabulary Icons
+        if (coreVocabulary) {
+            [
+                ...coreVocabulary.subjects,
+                ...coreVocabulary.verbs,
+                ...coreVocabulary.qualifiers,
+                ...coreVocabulary.objects
+            ].forEach(item => {
+                if (item.icon) icons.add(item.icon);
+            });
+        }
+
+        // 2. Add Default Phrase Icons (from core phrase content)
+        if (phraseContent && phraseContent['core']) {
+            phraseContent['core'].forEach(item => {
+                if (item.icon) icons.add(item.icon);
+            });
+        }
+
+        return Array.from(icons);
+    }, [coreVocabulary, phraseContent]);
 
     // Local State for Form
     const [label, setLabel] = useState('');

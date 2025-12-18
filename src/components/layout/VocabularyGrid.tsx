@@ -1,7 +1,6 @@
 import React from 'react';
 import { clsx } from 'clsx';
 import { useStore } from '../../store/useStore'; // Ensure implementation matches store path
-import { subjects, verbs, objects, qualifiers } from '../../grammar/initialVocabulary';
 import type { VocabularyItem } from '../../grammar/types';
 
 export const VocabularyGrid: React.FC = () => {
@@ -10,7 +9,8 @@ export const VocabularyGrid: React.FC = () => {
         userOverrides,
         viewMode,
         // Tab Data (Vocab)
-        tabs, activeTabId,
+        tabs, activeTabId, coreVocabulary,
+        // Tab Data (Phrases)
         // Tab Data (Phrases)
         phraseContent, activePhraseTabId, phraseTabs,
         // Actions
@@ -55,10 +55,10 @@ export const VocabularyGrid: React.FC = () => {
         if (activeTabId === 'core' || level !== 3) {
             // 1. Get Builtins for this role
             let builtins: VocabularyItem[] = [];
-            if (activeRole === 'subject') builtins = subjects;
-            if (activeRole === 'verb') builtins = verbs;
-            if (activeRole === 'qualifier') builtins = qualifiers;
-            if (activeRole === 'object') builtins = objects;
+            if (activeRole === 'subject') builtins = coreVocabulary.subjects;
+            if (activeRole === 'verb') builtins = coreVocabulary.verbs;
+            if (activeRole === 'qualifier') builtins = coreVocabulary.qualifiers;
+            if (activeRole === 'object') builtins = coreVocabulary.objects;
 
             // 2. Filter by Level (strict fixed list based on defaults)
             const defaults = builtins.filter(item => item.level <= level);
