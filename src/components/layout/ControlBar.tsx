@@ -1,7 +1,7 @@
 import React from 'react';
 import { clsx } from 'clsx';
 import { useStore } from '../../store/useStore';
-import type { Role } from '../../grammar/types';
+import type { Role, VocabularyItem } from '../../grammar/types';
 
 export const ControlBar: React.FC = () => {
     const { activeRole, setRole, viewMode, coreCategories, isEditMode, setEditingItem, setEditorOpen, clearSentence } = useStore();
@@ -16,10 +16,9 @@ export const ControlBar: React.FC = () => {
                 id: `CAT_${role}`, // Special ID prefix to identify category edit
                 type: role, // Keep role for color context
                 label: config.label,
-                icon: config.icon, // Pass current icon
+                icon: config.icon || '', // Pass current icon or empty string
                 level: 1, // Fixed: Use valid level
-                src: config.icon || ''
-            });
+            } as unknown as VocabularyItem);
             setEditorOpen(true);
         } else {
             // Normal Navigation
