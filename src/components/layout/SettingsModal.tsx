@@ -47,7 +47,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </button>
                     </div>
 
-                    <div className="flex px-6 gap-6 overflow-x-auto no-scrollbar scroll-smooth">
+                    <div className="flex px-3 gap-3 md:px-6 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth">
                         {(['general', 'profiles', 'speech', 'appearance', 'credits'] as const).map(tab => (
                             <button
                                 key={tab}
