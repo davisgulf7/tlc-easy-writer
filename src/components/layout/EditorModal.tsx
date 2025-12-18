@@ -39,7 +39,60 @@ export const EditorModal: React.FC = () => {
 
     // Image State
     const [imageSrc, setImageSrc] = useState('');
-    const [libraryTab, setLibraryTab] = useState<'system' | 'user'>('system');
+    const [libraryTab, setLibraryTab] = useState<'system' | 'user' | 'search'>('system');
+    const [searchQuery, setSearchQuery] = useState(''); // Unified search query
+
+    const OPEN_SYMBOLS_TOKEN = "token::181-1:b2c44ca3de:1766028306:c24a747bc6821a37a25d816d:e043eb4f87aa71effb892b90b00c11e1a1714eef33c9c6b6aa7bad918b935b041c7a53d986484488652d38aa0fa452cec0b26492de37ed0c45f188860d2e4f8f";
+
+    // Sub-component for Search Results (defined here for access to state/props if needed, or moved outside)
+    const OpenSymbolsResults = ({ query, onSelect }: { query: string; onSelect: (url: string) => void }) => {
+        const [results, setResults] = useState<any[]>([]);
+        const [loading, setLoading] = useState(false);
+        const [error, setError] = useState('');
+
+        // Debounce search
+        useEffect(() => {
+            const timeoutId = setTimeout(async () => {
+                if (!query || query.length < 2) return;
+
+                setLoading(true);
+                setError('');
+                try {
+                    const res = await fetch(`https://www.opensymbols.org/api/v2/symbols?q=${encodeURIComponent(query)}&access_token=${OPEN_SYMBOLS_TOKEN}`);
+                    if (!res.ok) throw new Error('API Error');
+                    const data = await res.json();
+                    setResults(data);
+                } catch (err) {
+                    setError('Failed to fetch symbols.');
+                    setResults([]);
+                } finally {
+                    setLoading(false);
+                }
+            }, 600); // 600ms debounce
+
+            return () => clearTimeout(timeoutId);
+        }, [query]);
+
+        if (loading) return <div className="text-center py-8 text-blue-500">Searching...</div>;
+        if (error) return <div className="text-center py-8 text-red-400">{error}</div>;
+        if (results.length === 0 && query.length >= 2) return <div className="text-center py-8 text-slate-400">No results found.</div>;
+
+        return (
+            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 pb-2">
+                {results.map((item) => (
+                    <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => onSelect(item.image_url)}
+                        className="aspect-square rounded-lg border border-slate-100 p-1 hover:bg-slate-50 hover:border-blue-300 transition-all flex flex-col items-center justify-center overflow-hidden bg-white"
+                        title={item.name}
+                    >
+                        <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
+                    </button>
+                ))}
+            </div>
+        );
+    };
 
     // Populate form when editingItem changes
     // Populate form when editingItem changes
@@ -189,42 +242,65 @@ export const EditorModal: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-6 p-6 overflow-y-auto"> {/* Added p-6 and overflow-y-auto */}
                     {/* Image Library Section */}
                     <div className="flex flex-col gap-4 p-4 bg-slate-50 rounded-xl">
-                        <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                        {/* Tabs */}
+                        <div className="flex justify-between items-center border-b border-slate-200">
                             <div className="flex gap-4">
                                 <button
                                     type="button"
                                     onClick={() => setLibraryTab('system')}
                                     className={clsx(
-                                        "text-sm font-bold pb-2 transition-colors border-b-2",
+                                        "text-sm font-bold pb-2 transition-colors border-b-2 px-1",
                                         libraryTab === 'system' ? "text-blue-600 border-blue-600" : "text-slate-400 border-transparent hover:text-slate-600"
                                     )}
                                 >
-                                    System Symbols
+                                    Icons
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setLibraryTab('user')}
                                     className={clsx(
-                                        "text-sm font-bold pb-2 transition-colors border-b-2",
+                                        "text-sm font-bold pb-2 transition-colors border-b-2 px-1",
                                         libraryTab === 'user' ? "text-blue-600 border-blue-600" : "text-slate-400 border-transparent hover:text-slate-600"
                                     )}
                                 >
                                     My Photos
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setLibraryTab('search')}
+                                    className={clsx(
+                                        "text-sm font-bold pb-2 transition-colors border-b-2 px-1 flex items-center gap-1",
+                                        libraryTab === 'search' ? "text-blue-600 border-blue-600" : "text-slate-400 border-transparent hover:text-slate-600"
+                                    )}
+                                >
+                                    <span>🔍</span> Web Search
                                 </button>
                             </div>
                             {imageSrc && (
                                 <button
                                     type="button"
                                     onClick={() => setImageSrc('')}
-                                    className="text-xs text-red-500 font-bold hover:text-red-700"
+                                    className="text-xs text-red-500 font-bold hover:text-red-700 pb-2"
                                 >
-                                    Clear Current
+                                    Clear
                                 </button>
                             )}
                         </div>
 
+                        {/* Search Bar */}
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                            <input
+                                type="text"
+                                placeholder={libraryTab === 'search' ? "Search OpenSymbols..." : "Search icons..."}
+                                value={searchQuery} // Need to add state
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            />
+                        </div>
+
                         {/* Current Selection Preview (Small) */}
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 py-2">
                             <div className="w-16 h-16 rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden shrink-0">
                                 {imageSrc ? (
                                     <img src={imageSrc} alt="Selected" className="w-full h-full object-contain" />
@@ -238,26 +314,40 @@ export const EditorModal: React.FC = () => {
                         </div>
 
                         {/* Library Content */}
-                        <div className="h-48 overflow-y-auto p-2 bg-white rounded-lg border border-slate-200">
-                            {libraryTab === 'system' ? (
+                        <div className="h-64 overflow-y-auto p-2 bg-white rounded-lg border border-slate-200 scroll-smooth">
+
+                            {/* SYSTEM TAB */}
+                            {libraryTab === 'system' && (
                                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                                    {/* Default System Icons */}
-                                    {systemLibrary.map((src, idx) => (
-                                        <button
-                                            key={idx}
-                                            type="button"
-                                            onClick={() => setImageSrc(src)}
-                                            className={clsx(
-                                                "aspect-square rounded-lg border p-1 hover:bg-slate-50 transition-all",
-                                                imageSrc === src ? "border-blue-500 ring-2 ring-blue-200" : "border-slate-100"
-                                            )}
-                                        >
-                                            <img src={src} alt="System Icon" className="w-full h-full object-contain" />
-                                        </button>
-                                    ))}
+                                    {systemLibrary
+                                        .filter(src => !searchQuery || src.toLowerCase().includes(searchQuery.toLowerCase()))
+                                        .map((src, idx) => (
+                                            <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => setImageSrc(src)}
+                                                className={clsx(
+                                                    "aspect-square rounded-lg border p-1 hover:bg-slate-50 transition-all",
+                                                    imageSrc === src ? "border-blue-500 ring-2 ring-blue-200" : "border-slate-100"
+                                                )}
+                                            >
+                                                <img src={src} alt="System Icon" className="w-full h-full object-contain" />
+                                            </button>
+                                        ))}
+                                    {systemLibrary.filter(src => !searchQuery || src.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                                        <p className="col-span-full text-center text-slate-400 text-sm py-4">No matching icons found.</p>
+                                    )}
                                 </div>
-                            ) : (
+                            )}
+
+                            {/* USER TAB */}
+                            {libraryTab === 'user' && (
                                 <div className="space-y-4">
+                                    {userLibrary.length > 0 && searchQuery && (
+                                        <div className="bg-yellow-50 text-yellow-700 p-2 rounded text-xs text-center border border-yellow-100">
+                                            Local photos are not searchable yet. Showing all.
+                                        </div>
+                                    )}
                                     {/* Upload New */}
                                     <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
                                         <span className="text-2xl mb-1">📷</span>
@@ -271,7 +361,7 @@ export const EditorModal: React.FC = () => {
                                     </label>
 
                                     {/* User Library Grid */}
-                                    {userLibrary.length > 0 && (
+                                    {userLibrary.length > 0 ? (
                                         <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                                             {userLibrary.map((src, idx) => (
                                                 <div key={idx} className="relative group">
@@ -300,6 +390,40 @@ export const EditorModal: React.FC = () => {
                                                 </div>
                                             ))}
                                         </div>
+                                    ) : (
+                                        <p className="text-center text-slate-400 text-sm py-2">No photos uploaded yet.</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* SEARCH TAB (OpenSymbols) */}
+                            {libraryTab === 'search' && (
+                                <div className="min-h-full">
+                                    {!searchQuery ? (
+                                        <div className="flex flex-col items-center justify-center h-full text-center text-slate-400 py-8">
+                                            <span className="text-4xl mb-2">🔍</span>
+                                            <p className="text-sm">Type above to search OpenSymbols</p>
+                                        </div>
+                                    ) : (
+                                        <OpenSymbolsResults query={searchQuery} onSelect={async (url) => {
+                                            try {
+                                                // Fetch the image as a blob
+                                                const response = await fetch(url);
+                                                const blob = await response.blob();
+                                                const file = new File([blob], "symbol.png", { type: blob.type });
+
+                                                // Process it (resize, compress)
+                                                const result = await processImage(file);
+
+                                                // Add to library and select
+                                                addToUserLibrary(result);
+                                                setImageSrc(result);
+                                                setLibraryTab('user'); // Switch to user tab to show it's saved
+                                            } catch (err) {
+                                                console.error(err);
+                                                alert("Failed to download symbol.");
+                                            }
+                                        }} />
                                     )}
                                 </div>
                             )}
