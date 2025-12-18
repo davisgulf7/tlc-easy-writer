@@ -451,9 +451,12 @@ export const useStore = create<AppState>((set) => {
             localStorage.removeItem('tlc_tab_content');
             localStorage.removeItem('tlc_phrase_tabs');
             localStorage.removeItem('tlc_phrase_content');
-            // Also TTS and Theme? Yes, User requested full reset.
+            // Configs
             localStorage.removeItem('tlc_tts');
             localStorage.removeItem('tlc_theme');
+            // User Data
+            localStorage.removeItem('tlc_profiles');
+            localStorage.removeItem('tlc_user_library');
 
             // Reload from code defaults
             return {
@@ -467,7 +470,12 @@ export const useStore = create<AppState>((set) => {
                 activeTabId: 'core',
                 activePhraseTabId: 'core',
                 level: 1,
-                isEditMode: false
+                isEditMode: false,
+                // App State Resets
+                sentence: [],
+                activeRole: 'subject',
+                profiles: [],
+                userLibrary: []
             };
 
         }),

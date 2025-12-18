@@ -5,6 +5,7 @@ import type { VocabularyItem, SubjectItem, VerbItem, ObjectItem, QualifierItem }
 
 // Default Icons
 import { systemLibrary } from '../../grammar/initialVocabulary';
+import { processImage } from '../../utils/imageUtils';
 
 export const EditorModal: React.FC = () => {
     // Consume EVERYTHING from useStore
@@ -67,17 +68,18 @@ export const EditorModal: React.FC = () => {
     // Check if modified (Core) OR if it exists (Tab - checking if label is not empty)
     const isModified = isCore ? (editingItem.id in userOverrides) : !!editingItem.label;
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
+            try {
+                const result = await processImage(file);
                 addToUserLibrary(result); // Add to library automatically
                 setImageSrc(result);
                 setLibraryTab('user'); // Switch to user tab to see it
-            };
-            reader.readAsDataURL(file);
+            } catch (err) {
+                console.error("Image processing failed", err);
+                alert("Failed to process image. Try a smaller file.");
+            }
         }
     };
 
