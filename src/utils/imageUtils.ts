@@ -5,48 +5,58 @@
  */
 export const processImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target?.result as string;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 512;
-                const MAX_HEIGHT = 512;
-                let width = img.width;
-                let height = img.height;
+        const url = URL.createObjectURL(file);
+        const img = new Image();
 
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
-                        height = MAX_HEIGHT;
-                    }
-                }
+        img.onload = () => {
+            URL.revokeObjectURL(url); // Clean up memory
 
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    reject(new Error('Could not get canvas context'));
-                    return;
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 512;
+            const MAX_HEIGHT = 512;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
                 }
-                ctx.drawImage(img, 0, 0, width, height);
-                // Compress to JPEG 0.7 quality which is usually good enough for icons
-                // Using image/jpeg reduces size significantly compared to png for photos
-                // However, for icons transparency might be needed. Let's check type.
-                const type = file.type === 'image/png' || file.type === 'image/svg+xml' ? 'image/png' : 'image/jpeg';
-                // For PNG we can't really control quality in toDataURL standardly in all browsers, 
-                // but we can at least resize.
-                resolve(canvas.toDataURL(type, 0.7));
-            };
-            img.onerror = (error) => reject(error);
+            } else {
+                if (height > MAX_HEIGHT) {
+                    width *= MAX_HEIGHT / height;
+                    height = MAX_HEIGHT;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                reject(new Error('Could not get canvas context'));
+                return;
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Compress to JPEG 0.7 quality which is usually good enough for icons
+            // Use JPEG for photos to save space, but PNG for graphics if needed?
+            // Actually, for user photos, JPEG 0.7 is ideal for localstorage.
+            // If original was PNG/SVG with transparency, we might lose it if we force JPEG?
+            // But canvas default background is transparent black, JPEG makes it black.
+            // Let's check type.
+            const isTransparent = file.type === 'image/png' || file.type === 'image/svg+xml' || file.type === 'image/webp';
+            const outputType = isTransparent ? 'image/png' : 'image/jpeg';
+
+            // For PNG, the quality param is generally ignored by browsers, but resizing helps size.
+            // For JPEG, 0.7 helps a lot.
+            resolve(canvas.toDataURL(outputType, 0.7));
         };
-        reader.onerror = (error) => reject(error);
+
+        img.onerror = (error) => {
+            URL.revokeObjectURL(url);
+            reject(error);
+        };
+
+        img.src = url;
     });
 };

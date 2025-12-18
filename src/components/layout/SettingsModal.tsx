@@ -167,6 +167,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => {
+                                                            // DOWNLOAD SPECIFIC PROFILE
+                                                            const blob = new Blob([JSON.stringify(profile.data, null, 2)], { type: 'application/json' });
+                                                            const url = URL.createObjectURL(blob);
+                                                            const a = document.createElement('a');
+                                                            a.href = url;
+                                                            a.download = `tlc_profile_${profile.name.replace(/\s+/g, '_')}_${new Date(profile.timestamp).toISOString().split('T')[0]}.json`;
+                                                            document.body.appendChild(a);
+                                                            a.click();
+                                                            document.body.removeChild(a);
+                                                            URL.revokeObjectURL(url);
+                                                        }}
+                                                        className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-md hover:bg-blue-200 font-bold flex items-center gap-1"
+                                                    >
+                                                        <span>⬇️</span> Export
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
                                                             if (window.confirm(`Load profile "${profile.name}"? Unsaved changes will be lost.`)) {
                                                                 loadProfile(profile.id);
                                                             }
@@ -201,9 +218,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                     <button
                                         onClick={() => {
                                             // Gather Data
-                                            const { userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig } = useStore.getState();
+                                            const { userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary } = useStore.getState();
                                             const exportData: Profile['data'] = {
-                                                userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig
+                                                userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary
                                             };
 
                                             // Create Blob
@@ -213,7 +230,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                             // Download
                                             const a = document.createElement('a');
                                             a.href = url;
-                                            a.download = `tlc_profile_${new Date().toISOString().split('T')[0]}.json`;
+                                            a.download = `tlc_current_${new Date().toISOString().split('T')[0]}.json`;
                                             document.body.appendChild(a);
                                             a.click();
                                             document.body.removeChild(a);
@@ -221,7 +238,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                         }}
                                         className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center gap-2"
                                     >
-                                        <span>⬇️</span> Export Profile
+                                        <span>⬇️</span> Export Current
                                     </button>
 
                                     <button

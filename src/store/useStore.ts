@@ -144,6 +144,7 @@ export interface Profile {
         phraseContent: TabContentMap;
         ttsConfig: TTSConfig;
         themeConfig: ThemeConfig;
+        userLibrary?: string[]; // Optional for backward compatibility
     };
 }
 
@@ -154,6 +155,7 @@ const saveTabContent = (content: Record<string, VocabularyItem[]>, key = 'tlc_ta
 const saveProfiles = (profiles: Profile[]) => localStorage.setItem('tlc_profiles', JSON.stringify(profiles));
 const saveTTS = (config: TTSConfig) => localStorage.setItem('tlc_tts', JSON.stringify(config));
 const saveTheme = (config: ThemeConfig) => localStorage.setItem('tlc_theme', JSON.stringify(config));
+const saveUserLibrary = (lib: string[]) => localStorage.setItem('tlc_user_library', JSON.stringify(lib));
 
 // Loaders
 const loadProfiles = (): Profile[] => {
@@ -395,7 +397,8 @@ export const useStore = create<AppState>((set) => {
                     phraseTabs: state.phraseTabs,
                     phraseContent: state.phraseContent,
                     ttsConfig: state.ttsConfig,
-                    themeConfig: state.themeConfig
+                    themeConfig: state.themeConfig,
+                    userLibrary: state.userLibrary
                 }
             };
 
@@ -406,7 +409,7 @@ export const useStore = create<AppState>((set) => {
             return { profiles: newProfiles };
         }),
 
-        loadProfile: (id: string) => set(() => {
+        loadProfile: (id: string) => set((state) => {
             const profiles = loadProfiles();
             const profile = profiles.find(p => p.id === id);
             if (!profile) return {};
@@ -424,6 +427,15 @@ export const useStore = create<AppState>((set) => {
             saveTTS(newTTS);
             saveTheme(newTheme);
 
+            // Merge Library if present
+            let newUserLibrary = state.userLibrary;
+            if (profile.data.userLibrary) {
+                // Merge unique
+                const merged = new Set([...state.userLibrary, ...profile.data.userLibrary]);
+                newUserLibrary = Array.from(merged);
+                saveUserLibrary(newUserLibrary);
+            }
+
             return {
                 userOverrides: profile.data.userOverrides,
                 tabs: profile.data.tabs,
@@ -432,6 +444,7 @@ export const useStore = create<AppState>((set) => {
                 phraseContent: profile.data.phraseContent,
                 ttsConfig: newTTS,
                 themeConfig: newTheme,
+                userLibrary: newUserLibrary,
                 activeTabId: 'core',
                 activePhraseTabId: 'core',
                 level: 1 // Reset level to start clean
@@ -480,7 +493,7 @@ export const useStore = create<AppState>((set) => {
 
         }),
 
-        importProfileData: (data: Profile['data']) => set(() => {
+        importProfileData: (data: Profile['data']) => set((state) => {
             // Sanitize: Ensure NO phrases leak into Vocabulary sections
             const cleanUserOverrides = Object.fromEntries(
                 Object.entries(data.userOverrides).filter(([_, item]) => item.type !== 'phrase')
@@ -506,6 +519,14 @@ export const useStore = create<AppState>((set) => {
             saveTTS(newTTS);
             saveTheme(newTheme);
 
+            // Merge Library
+            let newUserLibrary = state.userLibrary;
+            if (data.userLibrary) {
+                const merged = new Set([...state.userLibrary, ...data.userLibrary]);
+                newUserLibrary = Array.from(merged);
+                saveUserLibrary(newUserLibrary);
+            }
+
             // Also save as a backup profile so it's listed
             const timestamp = new Date().toLocaleString();
             const importedProfile: Profile = {
@@ -525,6 +546,7 @@ export const useStore = create<AppState>((set) => {
                 phraseContent: data.phraseContent,
                 ttsConfig: newTTS,
                 themeConfig: newTheme,
+                userLibrary: newUserLibrary,
                 profiles: newProfiles, // Update profile list
                 activeTabId: 'core',
                 activePhraseTabId: 'core',
