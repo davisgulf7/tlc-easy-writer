@@ -290,7 +290,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                                         : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                                                 )}
                                             >
-                                                {type === 'all' ? 'All Types' : type}
+                                                {type === 'all' ? 'All' : type}
                                             </button>
                                         ))}
                                     </div>
