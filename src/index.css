@@ -146,4 +146,6 @@ div[data-mode="high-contrast"] {
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
+  -webkit-overflow-scrolling: touch;
+  /* Enable smooth scrolling on iOS */
 }

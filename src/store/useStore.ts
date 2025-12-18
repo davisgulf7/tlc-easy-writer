@@ -481,12 +481,23 @@ export const useStore = create<AppState>((set) => {
         }),
 
         importProfileData: (data: Profile['data']) => set(() => {
+            // Sanitize: Ensure NO phrases leak into Vocabulary sections
+            const cleanUserOverrides = Object.fromEntries(
+                Object.entries(data.userOverrides).filter(([_, item]) => item.type !== 'phrase')
+            );
+
+            const cleanTabContent = Object.fromEntries(
+                Object.entries(data.tabContent).map(([tabId, items]) => {
+                    return [tabId, items.filter(item => item.type !== 'phrase')];
+                })
+            );
+
             // Restore Data from imported object
-            // We use the save helpers to ensure persistence
-            saveOverrides(data.userOverrides);
+            saveOverrides(cleanUserOverrides);
             saveTabs(data.tabs, 'tlc_tabs');
-            saveTabContent(data.tabContent, 'tlc_tab_content');
+            saveTabContent(cleanTabContent, 'tlc_tab_content');
             saveTabs(data.phraseTabs, 'tlc_phrase_tabs');
+            // Allow phrases in phraseContent obviously
             saveTabContent(data.phraseContent, 'tlc_phrase_content');
 
             // Configs
@@ -507,9 +518,9 @@ export const useStore = create<AppState>((set) => {
             saveProfiles(newProfiles);
 
             return {
-                userOverrides: data.userOverrides,
+                userOverrides: cleanUserOverrides,
                 tabs: data.tabs,
-                tabContent: data.tabContent,
+                tabContent: cleanTabContent,
                 phraseTabs: data.phraseTabs,
                 phraseContent: data.phraseContent,
                 ttsConfig: newTTS,
@@ -517,7 +528,10 @@ export const useStore = create<AppState>((set) => {
                 profiles: newProfiles, // Update profile list
                 activeTabId: 'core',
                 activePhraseTabId: 'core',
-                level: 1
+                level: 1,
+                // Ensure editor is closed to prevent zombie state from editor
+                isEditorOpen: false,
+                editingItem: null
             };
         }),
 

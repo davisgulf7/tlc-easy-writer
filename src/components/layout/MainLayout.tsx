@@ -48,7 +48,7 @@ export const MainLayout: React.FC = () => {
             </div>
 
             {/* Bottom Footer: Level & Settings */}
-            <div className="border-t border-slate-200/50 px-4 py-3 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20 shrink-0 gap-4 overflow-x-auto transition-colors">
+            <div className="border-t border-slate-200/50 px-4 py-3 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20 shrink-0 gap-4 overflow-x-auto transition-colors touch-pan-x">
                 {/* Level Buttons */}
                 <div className="flex gap-2 shrink-0">
                     {[1, 2, 3].map((lvl) => (
