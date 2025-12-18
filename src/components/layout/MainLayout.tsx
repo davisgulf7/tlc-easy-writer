@@ -11,10 +11,6 @@ export const MainLayout: React.FC = () => {
     const {
         level, setLevel,
         viewMode, setViewMode,
-        activePhraseTabId, setActiveTab,
-        phraseTabs,
-        setTabModalConfig,
-        isEditMode,
         clearSentence
     } = useStore();
     const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
@@ -23,16 +19,6 @@ export const MainLayout: React.FC = () => {
     React.useEffect(() => {
         // Any init logic
     }, []);
-
-    const handlePhraseSetClick = (tabId: string) => {
-        // If we are already in phrase mode and clicking a different tab, just set active.
-        // If we are in vocab mode, switch to phrase mode AND set active.
-        if (viewMode !== 'phrases') {
-            setViewMode('phrases');
-        }
-        setActiveTab(tabId, 'phrases');
-        clearSentence();
-    };
 
     return (
         <div className="fixed inset-0 overflow-hidden flex flex-col font-sans">
@@ -68,15 +54,15 @@ export const MainLayout: React.FC = () => {
                 </div>
 
                 {/* Navigation / Modes Area */}
-                <div className="flex items-center gap-2 flex-1 overflow-x-auto no-scrollbar mask-fade">
-                    {/* Words Button (Fixed) */}
+                <div className="flex items-center gap-2 flex-1 justify-center">
+                    {/* Words Button */}
                     <button
                         onClick={() => {
                             setViewMode('vocabulary');
                             clearSentence();
                         }}
                         className={clsx(
-                            "px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap shrink-0 border border-white",
+                            "px-6 py-2 rounded-full text-sm font-bold transition-all border border-white",
                             viewMode === 'vocabulary'
                                 ? "bg-slate-800 text-white shadow-md"
                                 : "bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700"
@@ -85,68 +71,20 @@ export const MainLayout: React.FC = () => {
                         Words
                     </button>
 
-                    {/* Divider */}
-                    <div className="w-px h-6 bg-slate-300 shrink-0 mx-1"></div>
-
-                    {/* Phrase Sets Buttons */}
-                    {/* Render ALL Phrase Tabs as buttons here */}
-                    {phraseTabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => handlePhraseSetClick(tab.id)}
-                            onDoubleClick={() => {
-                                if (isEditMode && tab.isRemovable) {
-                                    setTabModalConfig({ type: 'rename', tabId: tab.id, initialValue: tab.label });
-                                }
-                            }}
-                            className={clsx(
-                                "px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 shrink-0 border border-white",
-                                (viewMode === 'phrases' && activePhraseTabId === tab.id)
-                                    ? "bg-purple-600 text-white shadow-md"
-                                    : "bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-100"
-                            )}
-                        >
-                            {tab.id === 'core' ? 'Phrases' : tab.label}
-                            {isEditMode && tab.isRemovable && (
-                                <span
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setTabModalConfig({ type: 'rename', tabId: tab.id, initialValue: tab.label });
-                                    }}
-                                    className="text-white/70 hover:text-white"
-                                >
-                                    ✏️
-                                </span>
-                            )}
-                        </button>
-                    ))}
-
-                    {/* Add Phrase Category Button */}
+                    {/* Phrases Button (Toggle) */}
                     <button
                         onClick={() => {
-                            // Helper to add new phrase set
-                            setTabModalConfig({ type: 'add', initialValue: '' });
-                            // This config is observed by VocabularyGrid which renders the modal.
-                            // Ideally MainLayout should render properties if we want it global.
-                            // But Grid has the modal code currently. 
-                            // Verify: Yes, VocabularyGrid renders it.
-                            // When we click this, does Grid know we mean "Phrases"?
-                            // The 'viewMode' impacts the modal logic inside 'VocabularyGrid'?
-                            // Yes: 'addTab' uses 'viewMode' from store.
-                            // So we must ensure viewMode is 'phrases' before adding?
-                            // Logic inside VocabularyGrid.confirmTabModal uses store.viewMode.
-                            // So if user clicks [+] while in Vocab mode, it would add a Vocab tab.
-                            // But the button is visually grouped with phrases.
-                            // Fix: Force viewMode 'phrases' when clicking this specific [+] or pass type to modalConfig?
-                            // ModalConfig doesn't support type override, it relies on store state.
-                            // Let's force switch to Phrases first?
                             setViewMode('phrases');
-                            setTabModalConfig({ type: 'add', initialValue: '' });
+                            clearSentence();
                         }}
-                        className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold hover:bg-purple-200 transition-colors shrink-0 border border-white"
-                        title="Add Phrase Set"
+                        className={clsx(
+                            "px-6 py-2 rounded-full text-sm font-bold transition-all border border-white",
+                            viewMode === 'phrases'
+                                ? "bg-purple-600 text-white shadow-md"
+                                : "bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-100"
+                        )}
                     >
-                        +
+                        Phrases
                     </button>
                 </div>
 

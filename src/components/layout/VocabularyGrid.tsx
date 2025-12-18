@@ -12,7 +12,7 @@ export const VocabularyGrid: React.FC = () => {
         // Tab Data (Vocab)
         tabs, activeTabId,
         // Tab Data (Phrases)
-        phraseContent, activePhraseTabId,
+        phraseContent, activePhraseTabId, phraseTabs,
         // Actions
         setActiveTab, addTab, updateTab, removeTab, tabContent, clearSentence,
         // UI
@@ -213,35 +213,38 @@ export const VocabularyGrid: React.FC = () => {
                 </div>
             )}
 
-            {/* Level 3 Tabs (Vocabulary Only - Phrases are in Footer) */}
-            {level === 3 && viewMode === 'vocabulary' && (
+            {/* Top Tabs (Level 3 Vocab OR All Levels Phrase Mode) */}
+            {((level === 3 && viewMode === 'vocabulary') || viewMode === 'phrases') && (
                 <div className="shrink-0 min-h-12 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-2 mb-4 overflow-x-auto">
-                    {tabs.map(tab => (
-                        <div
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            onDoubleClick={() => isEditMode && tab.isRemovable && setTabModalConfig({ type: 'rename', tabId: tab.id, initialValue: tab.label })}
-                            className={clsx(
-                                "px-4 py-2 rounded-t-lg border border-b-0 text-sm font-bold cursor-pointer select-none whitespace-nowrap transition-colors flex items-center gap-2",
-                                activeTabId === tab.id
-                                    ? "bg-white border-slate-300 text-slate-800"
-                                    : "text-slate-400 hover:bg-slate-200 border-transparent hover:text-slate-600"
-                            )}
-                        >
-                            {tab.label}
-                            {isEditMode && tab.isRemovable && (
-                                <span onClick={(e) => { e.stopPropagation(); setTabModalConfig({ type: 'rename', tabId: tab.id, initialValue: tab.label }); }} className="text-xs opacity-50 hover:opacity-100">✏️</span>
-                            )}
-                        </div>
-                    ))}
+                    {(viewMode === 'phrases' ? phraseTabs : tabs).map(tab => {
+                        const isActive = (viewMode === 'phrases' ? activePhraseTabId : activeTabId) === tab.id;
+                        return (
+                            <div
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id, viewMode)}
+                                onDoubleClick={() => isEditMode && tab.isRemovable && setTabModalConfig({ type: 'rename', tabId: tab.id, initialValue: tab.label })}
+                                className={clsx(
+                                    "px-4 py-2 rounded-t-lg border border-b-0 text-sm font-bold cursor-pointer select-none whitespace-nowrap transition-colors flex items-center gap-2",
+                                    isActive
+                                        ? "bg-white border-slate-300 text-slate-800"
+                                        : "text-slate-400 hover:bg-slate-200 border-transparent hover:text-slate-600"
+                                )}
+                            >
+                                {tab.id === 'core' && viewMode === 'phrases' ? 'Phrases' : tab.label}
+                                {isEditMode && tab.isRemovable && (
+                                    <span onClick={(e) => { e.stopPropagation(); setTabModalConfig({ type: 'rename', tabId: tab.id, initialValue: tab.label }); }} className="text-xs opacity-50 hover:opacity-100">✏️</span>
+                                )}
+                            </div>
+                        );
+                    })}
 
                     {/* Add Tab Button */}
                     {isEditMode && (
                         <button
                             onClick={() => setTabModalConfig({ type: 'add', initialValue: '' })}
-                            className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 text-xs font-bold"
+                            className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 text-xs font-bold whitespace-nowrap"
                         >
-                            + Add Folders
+                            + {viewMode === 'phrases' ? 'Add Set' : 'Add Folder'}
                         </button>
                     )}
                 </div>
