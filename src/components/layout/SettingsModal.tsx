@@ -276,9 +276,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                                     const json = JSON.parse(event.target?.result as string);
                                                     // Basic validation check
                                                     if (json.userOverrides && json.tabs && json.themeConfig) {
-                                                        if (window.confirm("Import this profile? This will overwrite your current settings.")) {
-                                                            useStore.getState().importProfileData(json);
-                                                            alert("Profile imported successfully!");
+                                                        const defaultName = `Imported ${file.name.replace('.json', '')}`;
+                                                        if (window.confirm(`Import "${defaultName}"? This will overwrite your current settings.`)) {
+                                                            const profileName = window.prompt("Enter a name for this profile:", defaultName);
+                                                            if (profileName) {
+                                                                useStore.getState().importProfileData(json, profileName);
+                                                                alert("Profile imported successfully!");
+                                                                onClose(); // Close modal on success
+                                                            }
                                                         }
                                                     } else {
                                                         alert("Invalid profile file.");

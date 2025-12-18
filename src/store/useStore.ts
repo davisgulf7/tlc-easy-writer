@@ -123,7 +123,7 @@ interface AppState {
     loadProfile: (id: string) => void;
     deleteProfile: (id: string) => void;
     resetToDefaults: () => void;
-    importProfileData: (data: Profile['data']) => void;
+    importProfileData: (data: Profile['data'], name?: string) => void;
 
     // Image Library Actions
     userLibrary: string[];
@@ -493,7 +493,7 @@ export const useStore = create<AppState>((set) => {
 
         }),
 
-        importProfileData: (data: Profile['data']) => set((state) => {
+        importProfileData: (data: Profile['data'], name?: string) => set((state) => {
             // Sanitize: Ensure NO phrases leak into Vocabulary sections
             const cleanUserOverrides = Object.fromEntries(
                 Object.entries(data.userOverrides).filter(([_, item]) => item.type !== 'phrase')
@@ -529,9 +529,11 @@ export const useStore = create<AppState>((set) => {
 
             // Also save as a backup profile so it's listed
             const timestamp = new Date().toLocaleString();
+            const profileName = name || `Imported ${timestamp}`;
+
             const importedProfile: Profile = {
                 id: `prof_imp_${Date.now()}`,
-                name: `Imported ${timestamp}`,
+                name: profileName,
                 timestamp: Date.now(),
                 data: data
             };
