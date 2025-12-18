@@ -422,21 +422,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                     {/* --- CREDITS TAB --- */}
                     {activeTab === 'credits' && (
-                        <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-in fade-in duration-300">
+                        <div className="flex flex-col items-center justify-center min-h-full text-center p-2 animate-in fade-in duration-300">
 
-                            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md w-full">
-                                <h3 className="text-2xl font-black text-slate-800 mb-2">
+                            <div className="bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-slate-200 w-full max-w-md mx-auto">
+                                <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-2">
                                     TLC Easy Writer
                                 </h3>
-                                <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full mb-6"></div>
+                                <div className="h-1 w-12 md:w-20 bg-blue-500 mx-auto rounded-full mb-4 md:mb-6"></div>
 
-                                <p className="text-slate-600 font-medium mb-1">
+                                <p className="text-slate-600 font-medium text-sm md:text-base mb-1">
                                     Developed by the
                                 </p>
-                                <p className="text-slate-800 font-bold text-lg mb-2">
+                                <p className="text-slate-800 font-bold text-base md:text-lg mb-2">
                                     Technology & Learning Connections Team
                                 </p>
-                                <p className="text-slate-500 text-sm mb-6">
+                                <p className="text-slate-500 text-xs md:text-sm mb-4 md:mb-6">
                                     University of South Florida
                                 </p>
 
@@ -444,27 +444,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                     href="https://www.tlc-mtss.com"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-block px-6 py-3 bg-slate-50 text-blue-600 rounded-xl font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors border border-slate-200 hover:border-blue-200 mb-6"
+                                    className="inline-block px-4 py-2 md:px-6 md:py-3 bg-slate-50 text-blue-600 rounded-xl text-sm md:text-base font-bold hover:bg-blue-50 hover:text-blue-700 transition-colors border border-slate-200 hover:border-blue-200 mb-4 md:mb-6"
                                 >
                                     www.tlc-mtss.com
                                 </a>
 
-                                <div className="border-t border-slate-100 pt-6 mt-2">
-                                    <p className="text-slate-500 text-sm mb-2">
+                                <div className="border-t border-slate-100 pt-4 md:pt-6 mt-2">
+                                    <p className="text-slate-500 text-xs md:text-sm mb-2">
                                         We use open source OpenSymbols
                                     </p>
                                     <a
                                         href="https://www.opensymbols.org"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-blue-500 hover:text-blue-700 font-bold"
+                                        className="text-blue-500 hover:text-blue-700 font-bold text-sm md:text-base"
                                     >
                                         www.opensymbols.org
                                     </a>
                                 </div>
                             </div>
 
-                            <p className="text-xs text-slate-400">
+                            <p className="text-[10px] md:text-xs text-slate-400 mt-4">
                                 v1.0.0
                             </p>
                         </div>
