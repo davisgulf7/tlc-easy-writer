@@ -17,11 +17,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         isEditMode, toggleEditMode,
         profiles, saveProfile, loadProfile, deleteProfile, resetToDefaults,
         ttsConfig, setTTSConfig,
-        themeConfig, setThemeConfig, resetTheme
+        themeConfig, setThemeConfig, resetTheme,
+        phraseTabs, getExportPackage, importContentPackage
     } = useStore();
 
     const [activeTab, setActiveTab] = useState<SettingsTab>('general');
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [showPhraseSelector, setShowPhraseSelector] = useState(false);
+    const [selectedExportTabs, setSelectedExportTabs] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const loadVoices = () => {
@@ -221,83 +224,160 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                     <span>💾</span> Backup & Share
                                 </h3>
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => {
-                                            // Prompt for name
-                                            const defaultName = `tlc_current_${new Date().toISOString().split('T')[0]}`;
-                                            const fileName = window.prompt("Enter a name for this export file:", defaultName);
 
-                                            if (fileName) {
-                                                // Gather Data
-                                                const { userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary } = useStore.getState();
-                                                const exportData: Profile['data'] = {
-                                                    userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary
-                                                };
+                                {!showPhraseSelector ? (
+                                    <>
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => {
+                                                    // Prompt for name
+                                                    const defaultName = `tlc_current_${new Date().toISOString().split('T')[0]}`;
+                                                    const fileName = window.prompt("Enter a name for this export file:", defaultName);
 
-                                                // Create Blob
-                                                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                                                const url = URL.createObjectURL(blob);
+                                                    if (fileName) {
+                                                        // Gather Data
+                                                        const { userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary } = useStore.getState();
+                                                        const exportData: Profile['data'] = {
+                                                            userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary
+                                                        };
 
-                                                // Download
-                                                const a = document.createElement('a');
-                                                a.href = url;
-                                                // Ensure .json extension
-                                                a.download = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
-                                                document.body.appendChild(a);
-                                                a.click();
-                                                document.body.removeChild(a);
-                                                URL.revokeObjectURL(url);
-                                            }
-                                        }}
-                                        className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center gap-2"
-                                    >
-                                        <span>⬇️</span> Export Current
-                                    </button>
+                                                        // Create Blob
+                                                        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                                                        const url = URL.createObjectURL(blob);
 
-                                    <button
-                                        onClick={() => document.getElementById('importProfileInput')?.click()}
-                                        className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center gap-2"
-                                    >
-                                        <span>⬆️</span> Import Profile
-                                    </button>
-                                    <input
-                                        type="file"
-                                        id="importProfileInput"
-                                        accept=".json"
-                                        className="hidden"
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (!file) return;
-
-                                            const reader = new FileReader();
-                                            reader.onload = (event) => {
-                                                try {
-                                                    const json = JSON.parse(event.target?.result as string);
-                                                    // Basic validation check
-                                                    if (json.userOverrides && json.tabs && json.themeConfig) {
-                                                        const defaultName = `Imported ${file.name.replace('.json', '')}`;
-                                                        if (window.confirm(`Import "${defaultName}"? This will overwrite your current settings.`)) {
-                                                            const profileName = window.prompt("Enter a name for this profile:", defaultName);
-                                                            if (profileName) {
-                                                                useStore.getState().importProfileData(json, profileName);
-                                                                alert("Profile imported successfully!");
-                                                                onClose(); // Close modal on success
-                                                            }
-                                                        }
-                                                    } else {
-                                                        alert("Invalid profile file.");
+                                                        // Download
+                                                        const a = document.createElement('a');
+                                                        a.href = url;
+                                                        // Ensure .json extension
+                                                        a.download = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
+                                                        document.body.appendChild(a);
+                                                        a.click();
+                                                        document.body.removeChild(a);
+                                                        URL.revokeObjectURL(url);
                                                     }
-                                                } catch {
-                                                    alert("Error reading file.");
+                                                }}
+                                                className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center gap-2"
+                                            >
+                                                <span>⬇️</span> Export Full Profile
+                                            </button>
+
+                                            <button
+                                                onClick={() => document.getElementById('importProfileInput')?.click()}
+                                                className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center gap-2"
+                                            >
+                                                <span>⬆️</span> Import File
+                                            </button>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setShowPhraseSelector(true)}
+                                            className="w-full py-3 bg-blue-50 text-blue-700 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-200 flex items-center justify-center gap-2"
+                                        >
+                                            <span>📤</span> Share Phrase Sets
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h4 className="font-bold text-slate-700">Select Sets to Share</h4>
+                                            <button onClick={() => setShowPhraseSelector(false)} className="text-sm text-slate-500 hover:text-red-500">Cancel</button>
+                                        </div>
+                                        <div className="flex flex-col gap-2 max-h-40 overflow-y-auto bg-white p-2 rounded border border-slate-100 mb-3">
+                                            {phraseTabs.filter(t => t.id !== 'core').length === 0 && (
+                                                <p className="text-slate-400 text-sm text-center py-2">No custom phrase sets created.</p>
+                                            )}
+                                            {phraseTabs.filter(t => t.id !== 'core').map(tab => (
+                                                <label key={tab.id} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedExportTabs.has(tab.id)}
+                                                        onChange={e => {
+                                                            const newSet = new Set(selectedExportTabs);
+                                                            if (e.target.checked) newSet.add(tab.id);
+                                                            else newSet.delete(tab.id);
+                                                            setSelectedExportTabs(newSet);
+                                                        }}
+                                                        className="w-4 h-4 text-blue-600 rounded"
+                                                    />
+                                                    <span className="text-sm font-medium">{tab.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <button
+                                            disabled={selectedExportTabs.size === 0}
+                                            onClick={() => {
+                                                const name = window.prompt("Name this package (e.g. 'Zoo Trip Phrases'):", "My Phrase Set");
+                                                if (name) {
+                                                    const pkg = getExportPackage(Array.from(selectedExportTabs), name);
+
+                                                    // Download Package
+                                                    const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' });
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `tlc_pack_${name.replace(/\s+/g, '_')}.json`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    document.body.removeChild(a);
+                                                    URL.revokeObjectURL(url);
+
+                                                    setShowPhraseSelector(false);
+                                                    setSelectedExportTabs(new Set());
                                                 }
-                                            };
-                                            reader.readAsText(file);
-                                            // Reset input
-                                            e.target.value = '';
-                                        }}
-                                    />
-                                </div>
+                                            }}
+                                            className="w-full py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Export Package
+                                        </button>
+                                    </div>
+                                )}
+
+                                <input
+                                    type="file"
+                                    id="importProfileInput"
+                                    accept=".json"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                            try {
+                                                const json = JSON.parse(event.target?.result as string);
+
+                                                // DETECT TYPE
+                                                if (json.type === 'package') {
+                                                    // Handle Content Package
+                                                    if (window.confirm(`Found Phrase Pack: "${json.name}" with ${json.tabs?.length} sets.\n\nAdd these to your app?`)) {
+                                                        importContentPackage(json);
+                                                        alert("Phrase sets added successfully!");
+                                                        onClose();
+                                                    }
+                                                }
+                                                // Handle Full Profile (Legacy or New)
+                                                else if (json.userOverrides && json.tabs && json.themeConfig) {
+                                                    const defaultName = `Imported ${file.name.replace('.json', '')}`;
+                                                    if (window.confirm(`Import Full Profile "${defaultName}"? This will overwrite everything.`)) {
+                                                        const profileName = window.prompt("Enter a name for this profile:", defaultName);
+                                                        if (profileName) {
+                                                            useStore.getState().importProfileData(json, profileName);
+                                                            alert("Profile imported successfully!");
+                                                            onClose(); // Close modal on success
+                                                        }
+                                                    }
+                                                } else {
+                                                    alert("Invalid file format.");
+                                                }
+                                            } catch {
+                                                alert("Error reading file.");
+                                            }
+                                        };
+                                        reader.readAsText(file);
+                                        // Reset input
+                                        e.target.value = '';
+                                    }}
+                                />
                             </section>
                         </div>
                     )}

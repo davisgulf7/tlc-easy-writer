@@ -136,6 +136,10 @@ interface AppState {
     userLibrary: UserLibraryItem[];
     addToUserLibrary: (item: UserLibraryItem) => void;
     removeFromUserLibrary: (id: string) => void;
+
+    // Content Sharing
+    getExportPackage: (tabIds: string[], name: string) => ContentPackage;
+    importContentPackage: (pkg: ContentPackage) => void;
 }
 
 // Profile Interface
@@ -637,6 +641,105 @@ export const useStore = create<AppState>((set) => {
             const newLib = state.userLibrary.filter(i => i.id !== id);
             saveUserLibrary(newLib as any);
             return { userLibrary: newLib };
+        }),
+
+        // --- Content Sharing (Partial Export) ---
+
+        getExportPackage: (tabIds: string[], name: string): ContentPackage => {
+            const state = useStore.getState(); // Access current state
+
+            // 1. Extract Tabs
+            const selectedTabs = state.phraseTabs.filter(t => tabIds.includes(t.id));
+
+            // 2. Extract Content & Find Image Dependencies
+            const selectedContent: Record<string, VocabularyItem[]> = {};
+            const dependentImages: UserLibraryItem[] = [];
+            const processedImages = new Set<string>(); // Track by src to avoid duplicates
+
+            selectedTabs.forEach(tab => {
+                const items = state.phraseContent[tab.id] || [];
+                selectedContent[tab.id] = items;
+
+                // Walk items to find user images
+                items.forEach(item => {
+                    if (item.icon && item.icon.startsWith('data:image')) {
+                        // Check if this image exists in the library
+                        // We search by exact SRC match
+                        const libraryItem = state.userLibrary.find(lib => lib.src === item.icon);
+                        if (libraryItem && !processedImages.has(libraryItem.src)) {
+                            dependentImages.push(libraryItem);
+                            processedImages.add(libraryItem.src);
+                        }
+                    }
+                });
+            });
+
+            return {
+                type: 'package',
+                name,
+                timestamp: Date.now(),
+                tabs: selectedTabs,
+                tabContent: selectedContent,
+                images: dependentImages
+            };
+        },
+
+        importContentPackage: (pkg: ContentPackage) => set((state) => {
+            // 1. Merge Images (Deduplicate)
+            let newUserLibrary = state.userLibrary;
+            if (pkg.images && pkg.images.length > 0) {
+                const existingSrcs = new Set(state.userLibrary.map(i => i.src));
+                const uniqueNew = pkg.images.filter(i => !existingSrcs.has(i.src));
+                newUserLibrary = [...uniqueNew, ...state.userLibrary];
+                saveUserLibrary(newUserLibrary);
+            }
+
+            // 2. Remap Tabs to ensure ID uniqueness
+            const idMap: Record<string, string> = {};
+            const newTabs: Tab[] = pkg.tabs.map(tab => {
+                const newId = `tab_imp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                idMap[tab.id] = newId;
+
+                // Rename if duplicate label exists?
+                // Simple check: if label exists, append (Imported)
+                const labelExists = state.phraseTabs.some(t => t.label === tab.label);
+                return {
+                    ...tab,
+                    id: newId,
+                    label: labelExists ? `${tab.label} (Imported)` : tab.label
+                };
+            });
+
+            // 3. Remap Content
+            const newContentEntries: Record<string, VocabularyItem[]> = {};
+            Object.entries(pkg.tabContent).forEach(([oldTabId, items]) => {
+                const newTabId = idMap[oldTabId];
+                if (newTabId) {
+                    newContentEntries[newTabId] = items;
+                }
+            });
+
+            // 4. Save Updates
+            const updatedTabs = [...state.phraseTabs, ...newTabs];
+            const updatedContent = { ...state.phraseContent, ...newContentEntries };
+
+            saveTabs(updatedTabs, 'tlc_phrase_tabs');
+            saveTabContent(updatedContent, 'tlc_phrase_content');
+
+            return {
+                userLibrary: newUserLibrary,
+                phraseTabs: updatedTabs,
+                phraseContent: updatedContent
+            };
         })
     };
 });
+
+export interface ContentPackage {
+    type: 'package';
+    name: string;
+    timestamp: number;
+    tabs: Tab[];
+    tabContent: Record<string, VocabularyItem[]>;
+    images: UserLibraryItem[];
+}
