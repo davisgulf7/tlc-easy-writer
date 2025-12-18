@@ -208,7 +208,30 @@ const loadTTS = (): TTSConfig => {
 const loadTheme = (): ThemeConfig => {
     try {
         const stored = localStorage.getItem('tlc_theme');
-        return stored ? { ...DEFAULT_THEME, ...JSON.parse(stored) } : DEFAULT_THEME;
+        if (!stored) return DEFAULT_THEME;
+
+        const parsed = JSON.parse(stored);
+
+        // Safety check: ensure categoryColors exists and has all keys
+        if (!parsed.categoryColors) {
+            return {
+                ...DEFAULT_THEME,
+                ...parsed,
+                categoryColors: DEFAULT_THEME.categoryColors
+            };
+        }
+
+        // Deep merge to ensure no missing color keys
+        const safeConfig = {
+            ...DEFAULT_THEME,
+            ...parsed,
+            categoryColors: {
+                ...DEFAULT_THEME.categoryColors,
+                ...parsed.categoryColors
+            }
+        };
+
+        return safeConfig;
     } catch { return DEFAULT_THEME; }
 };
 
