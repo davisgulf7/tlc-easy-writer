@@ -6,7 +6,7 @@ import type { Profile } from '../../store/useStore';
 import { onlineContentService } from '../../services/onlineContentService';
 import type { OnlineSearchResult } from '../../services/onlineContentService';
 
-import { Settings, Users, Cloud, Mic, Palette, Info } from 'lucide-react';
+import { Settings, Users, Cloud, Mic, Palette, Info, ArrowRight } from 'lucide-react';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -23,6 +23,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         profiles, saveProfile, loadProfile, deleteProfile, resetToDefaults,
         ttsConfig, setTTSConfig,
         themeConfig, setThemeConfig, resetTheme,
+        generalConfig, setGeneralConfig,
         phraseTabs, tabs, getExportPackage, importContentPackage,
         restorePoint, revertToRestorePoint
     } = useStore();
@@ -170,6 +171,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                         "bg-white w-5 h-5 rounded-full shadow-sm transition-transform duration-200 ease-in-out transform",
                                         isEditMode ? "translate-x-5" : "translate-x-0"
                                     )} />
+                                </button>
+                            </section>
+
+                            {/* Auto Advance Toggle */}
+                            <section className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                        Automatic Movement
+                                    </h3>
+                                    <p className="text-sm text-slate-500">Auto-advance to next category after selection</p>
+                                </div>
+                                <button
+                                    onClick={() => setGeneralConfig({ autoAdvance: !generalConfig.autoAdvance })}
+                                    className={clsx(
+                                        "w-12 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out relative",
+                                        generalConfig.autoAdvance ? "bg-blue-500" : "bg-slate-300"
+                                    )}
+                                >
+                                    <div className={clsx(
+                                        "bg-white w-5 h-5 rounded-full shadow-sm transition-transform duration-200 ease-in-out transform flex items-center justify-center",
+                                        generalConfig.autoAdvance ? "translate-x-5" : "translate-x-0"
+                                    )}>
+                                        {generalConfig.autoAdvance && <ArrowRight size={12} className="text-blue-500" />}
+                                    </div>
                                 </button>
                             </section>
 

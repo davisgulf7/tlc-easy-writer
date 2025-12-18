@@ -1,5 +1,34 @@
 {
   "userOverrides": {},
+  "generalConfig": {
+    "autoAdvance": true
+  },
+  "coreCategories": {
+    "subject": {
+      "id": "subject",
+      "label": "Who",
+      "color": "bg-subject",
+      "icon": "symbols/core/who.png"
+    },
+    "verb": {
+      "id": "verb",
+      "label": "Action",
+      "color": "bg-verb",
+      "icon": "symbols/core/action.png"
+    },
+    "qualifier": {
+      "id": "qualifier",
+      "label": "Describe",
+      "color": "bg-qualifier",
+      "icon": "symbols/core/describe.png"
+    },
+    "object": {
+      "id": "object",
+      "label": "What",
+      "color": "bg-object",
+      "icon": "symbols/core/what.png"
+    }
+  },
   "tabs": [
     {
       "id": "core",

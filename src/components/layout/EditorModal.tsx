@@ -32,7 +32,8 @@ export const EditorModal: React.FC = () => {
         removeFromUserLibrary,
         // Core Data for System Library
         coreVocabulary,
-        phraseContent
+        phraseContent,
+        updateCoreCategory
     } = useStore();
 
     // Compute System Library dynamically
@@ -149,11 +150,11 @@ export const EditorModal: React.FC = () => {
     const isPhrases = viewMode === 'phrases';
     const currentTabId = isPhrases ? activePhraseTabId : activeTabId;
     const isCore = currentTabId === 'core';
+    const isCategory = editingItem.id.startsWith('CAT_');
 
     // Check if modified (Core) OR if it exists (Tab - checking if label is not empty)
-    const isModified = isCore ? (editingItem.id in userOverrides) : !!editingItem.label;
-
-
+    // For Categories, we don't currently track "modified" state vs default easily here, so hide Delete/Reset for now.
+    const isModified = isCategory ? false : (isCore ? (editingItem.id in userOverrides) : !!editingItem.label);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -165,6 +166,17 @@ export const EditorModal: React.FC = () => {
             level: editingItem.level,
             icon: imageSrc || undefined
         };
+
+        if (isCategory) {
+            // Updating Core Category
+            // type is Role
+            updateCoreCategory(editingItem.type as any, {
+                label: label.trim(),
+                icon: imageSrc || undefined
+            });
+            onClose();
+            return;
+        }
 
         let newItem: VocabularyItem;
 
@@ -204,15 +216,6 @@ export const EditorModal: React.FC = () => {
         }
 
         if (isCore && !isPhrases) {
-            // Only vocab core uses overrides? 
-            // Phrases Core logic:
-            // If I edit a standard phrase, it SHOULD be an override if possible.
-            // But we implemented saveTabItem for Phrase Content.
-            // Phrase Content 'core' is loaded into `phraseContent`.
-            // So we can treat Phrase Core same as Phrase Tab -> saveTabItem.
-            // We treat Vocab Core differently because it uses built-in lists + overrides.
-            // Phrase Core uses `phraseContent['core']`.
-            // So for Phrases, always use `saveTabItem`.
             setUserOverride(newItem);
         } else {
             // For Phrases (Core or Custom) and Vocab (Custom)
@@ -227,6 +230,8 @@ export const EditorModal: React.FC = () => {
     };
 
     const handleReset = () => {
+        if (isCategory) return; // Should be hidden, but safety check
+
         if (isCore && !isPhrases) {
             resetUserOverride(editingItem.id);
         } else {

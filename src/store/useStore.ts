@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import type { VocabularyItem } from '../grammar/types';
 
+
+export interface CategoryConfig {
+    id: Role;
+    label: string;
+    color: string;
+    icon?: string;
+}
+
 type Role = 'subject' | 'verb' | 'qualifier' | 'object';
 
 export interface Tab {
@@ -46,9 +54,15 @@ export interface ThemeConfig {
     };
 }
 
+export interface GeneralConfig {
+    autoAdvance: boolean;
+}
+
 // Default Configuration
 const DEFAULT_TTS: TTSConfig = defaultProfile.ttsConfig;
 const DEFAULT_THEME: ThemeConfig = defaultProfile.themeConfig as ThemeConfig;
+const DEFAULT_CORE_CATEGORIES: Record<Role, CategoryConfig> = defaultProfile.coreCategories as unknown as Record<Role, CategoryConfig>;
+const DEFAULT_GENERAL_CONFIG: GeneralConfig = defaultProfile.generalConfig || { autoAdvance: true };
 
 interface AppState {
     sentence: VocabularyItem[];    // State
@@ -58,6 +72,8 @@ interface AppState {
     isEditorOpen: boolean;
     editingItem: VocabularyItem | null;
     userOverrides: Record<string, VocabularyItem>; // Map ID -> Item
+    coreCategories: Record<Role, CategoryConfig>; // Configurable Categories
+    generalConfig: GeneralConfig;
     restorePoint: Profile['data'] | null;
 
     // View Mode
@@ -95,6 +111,7 @@ interface AppState {
     // Config Actions
     setTTSConfig: (config: Partial<TTSConfig>) => void;
     setThemeConfig: (config: Partial<ThemeConfig>) => void;
+    setGeneralConfig: (config: Partial<GeneralConfig>) => void;
     resetTheme: () => void;
 
     addWord: (item: VocabularyItem) => void;
@@ -105,6 +122,7 @@ interface AppState {
     // Override Actions
     setUserOverride: (item: VocabularyItem) => void;
     resetUserOverride: (originalId: string) => void;
+    updateCoreCategory: (role: Role, updates: Partial<CategoryConfig>) => void;
 
     // View Actions
     setViewMode: (mode: 'vocabulary' | 'phrases') => void;
@@ -147,25 +165,36 @@ export interface Profile {
     timestamp: number;
     data: {
         userOverrides: Record<string, VocabularyItem>;
+        coreCategories?: Record<Role, CategoryConfig>; // Optional for backward compatibility
         tabs: Tab[];
         tabContent: TabContentMap;
         phraseTabs: Tab[];
         phraseContent: TabContentMap;
         ttsConfig: TTSConfig;
         themeConfig: ThemeConfig;
+        generalConfig?: GeneralConfig;
         userLibrary?: UserLibraryItem[]; // Optional for backward compatibility
     };
 }
 
 // Helpers
+const saveCoreCategories = (cats: Record<Role, CategoryConfig>) => localStorage.setItem('tlc_core_cats', JSON.stringify(cats));
 const saveOverrides = (overrides: Record<string, VocabularyItem>) => localStorage.setItem('tlc_vocab_overrides', JSON.stringify(overrides));
 const saveTabs = (tabs: Tab[], key = 'tlc_tabs') => localStorage.setItem(key, JSON.stringify(tabs));
 const saveTabContent = (content: Record<string, VocabularyItem[]>, key = 'tlc_tab_content') => localStorage.setItem(key, JSON.stringify(content));
 const saveProfiles = (profiles: Profile[]) => localStorage.setItem('tlc_profiles', JSON.stringify(profiles));
 const saveTTS = (config: TTSConfig) => localStorage.setItem('tlc_tts', JSON.stringify(config));
 const saveTheme = (config: ThemeConfig) => localStorage.setItem('tlc_theme', JSON.stringify(config));
+const saveGeneralConfig = (config: GeneralConfig) => localStorage.setItem('tlc_general_config', JSON.stringify(config));
 const saveUserLibrary = (lib: UserLibraryItem[]) => localStorage.setItem('tlc_user_library', JSON.stringify(lib));
 const saveRestorePointStorage = (data: Profile['data']) => localStorage.setItem('tlc_restore_point', JSON.stringify(data));
+
+const loadGeneralConfig = (): GeneralConfig => {
+    try {
+        const stored = localStorage.getItem('tlc_general_config');
+        return stored ? { ...DEFAULT_GENERAL_CONFIG, ...JSON.parse(stored) } : DEFAULT_GENERAL_CONFIG;
+    } catch { return DEFAULT_GENERAL_CONFIG; }
+};
 
 // Loaders
 const loadUserLibrary = (): UserLibraryItem[] => {
@@ -241,6 +270,13 @@ const loadOverrides = (): Record<string, VocabularyItem> => {
     } catch { return {}; }
 };
 
+const loadCoreCategories = (): Record<Role, CategoryConfig> => {
+    try {
+        const stored = localStorage.getItem('tlc_core_cats');
+        return stored ? { ...DEFAULT_CORE_CATEGORIES, ...JSON.parse(stored) } : DEFAULT_CORE_CATEGORIES;
+    } catch { return DEFAULT_CORE_CATEGORIES; }
+};
+
 const loadTabs = (key = 'tlc_tabs', defaults: Tab[] = defaultProfile.tabs): Tab[] => {
     try {
         const stored = localStorage.getItem(key);
@@ -271,6 +307,7 @@ export const useStore = create<AppState>((set) => {
         isEditorOpen: false,
         editingItem: null,
         userOverrides: loadOverrides(),
+        coreCategories: loadCoreCategories(),
 
         viewMode: 'vocabulary',
 
@@ -288,6 +325,7 @@ export const useStore = create<AppState>((set) => {
         // Configuration
         ttsConfig: loadTTS(),
         themeConfig: loadTheme(),
+        generalConfig: loadGeneralConfig(),
 
         // Profiles
         profiles: loadProfiles(),
@@ -330,15 +368,56 @@ export const useStore = create<AppState>((set) => {
             return { themeConfig: DEFAULT_THEME };
         }),
 
-        addWord: (item) => set((state) => ({ sentence: [...state.sentence, item] })),
-        clearSentence: () => set({ sentence: [] }),
+        // --- General Config ---
+        setGeneralConfig: (config) => set((state) => {
+            const newConfig = { ...state.generalConfig, ...config };
+            saveGeneralConfig(newConfig);
+            return { generalConfig: newConfig };
+        }),
+
+        addWord: (item) => set((state) => {
+            let nextRole = state.activeRole;
+
+            // Automatic Movement Logic
+            if (state.generalConfig.autoAdvance) {
+                if (state.activeRole === 'subject') nextRole = 'verb';
+                else if (state.activeRole === 'verb') nextRole = 'qualifier';
+                else if (state.activeRole === 'qualifier') nextRole = 'object';
+                // object stays object
+            }
+
+            return {
+                sentence: [...state.sentence, item],
+                activeRole: nextRole
+            };
+        }),
+
+        clearSentence: () => set({ sentence: [], activeRole: 'subject' }),
+
         removeWord: (index) => set((state) => ({
             sentence: state.sentence.filter((_i, i) => i !== index)
         })),
 
-        removeLastWord: () => set((state) => ({
-            sentence: state.sentence.slice(0, -1)
-        })),
+        removeLastWord: () => set((state) => {
+            let prevRole = state.activeRole;
+
+            // Backtracking Logic
+            if (state.generalConfig.autoAdvance && state.sentence.length > 0) {
+                const itemToRemove = state.sentence[state.sentence.length - 1];
+                const type = itemToRemove.type;
+
+                // Reverse the natural flow based on what was removed
+                if (type === 'subject') prevRole = 'subject';
+                else if (type === 'verb') prevRole = 'verb';
+                else if (type === 'qualifier') prevRole = 'qualifier';
+                else if (type === 'object') prevRole = 'object';
+            }
+
+            return {
+                sentence: state.sentence.slice(0, -1),
+                activeRole: prevRole
+            };
+        }),
 
         setUserOverride: (item) => set((state) => {
             const newOverrides = { ...state.userOverrides, [item.id]: item };
@@ -351,6 +430,13 @@ export const useStore = create<AppState>((set) => {
             const { [originalId]: _discard, ...rest } = state.userOverrides;
             saveOverrides(rest);
             return { userOverrides: rest };
+        }),
+
+        updateCoreCategory: (role, updates) => set((state) => {
+            const current = state.coreCategories[role];
+            const updated = { ...state.coreCategories, [role]: { ...current, ...updates } };
+            saveCoreCategories(updated);
+            return { coreCategories: updated };
         }),
 
         setViewMode: (mode) => set({ viewMode: mode }),
@@ -458,6 +544,7 @@ export const useStore = create<AppState>((set) => {
                 timestamp: Date.now(),
                 data: {
                     userOverrides: state.userOverrides,
+                    coreCategories: state.coreCategories,
                     tabs: state.tabs,
                     tabContent: state.tabContent,
                     phraseTabs: state.phraseTabs,
@@ -482,6 +569,8 @@ export const useStore = create<AppState>((set) => {
 
             // Restore Data
             saveOverrides(profile.data.userOverrides);
+            const loadedCoreCats = profile.data.coreCategories || DEFAULT_CORE_CATEGORIES;
+            saveCoreCategories(loadedCoreCats);
             saveTabs(profile.data.tabs, 'tlc_tabs');
             saveTabContent(profile.data.tabContent, 'tlc_tab_content');
             saveTabs(profile.data.phraseTabs, 'tlc_phrase_tabs');
@@ -522,6 +611,7 @@ export const useStore = create<AppState>((set) => {
 
             return {
                 userOverrides: profile.data.userOverrides,
+                coreCategories: loadedCoreCats,
                 tabs: profile.data.tabs,
                 tabContent: profile.data.tabContent,
                 phraseTabs: profile.data.phraseTabs,
@@ -544,6 +634,7 @@ export const useStore = create<AppState>((set) => {
         resetToDefaults: () => set(() => {
             // Clear all storage related to content
             localStorage.removeItem('tlc_vocab_overrides');
+            localStorage.removeItem('tlc_core_cats');
             localStorage.removeItem('tlc_tabs');
             localStorage.removeItem('tlc_tab_content');
             localStorage.removeItem('tlc_phrase_tabs');
@@ -559,6 +650,7 @@ export const useStore = create<AppState>((set) => {
             // Reload from code defaults
             return {
                 userOverrides: defaultProfile.userOverrides,
+                coreCategories: DEFAULT_CORE_CATEGORIES,
                 tabs: defaultProfile.tabs,
                 tabContent: defaultProfile.tabContent,
                 phraseTabs: defaultProfile.phraseTabs,
@@ -596,6 +688,19 @@ export const useStore = create<AppState>((set) => {
 
             // Restore Data from imported object
             saveOverrides(cleanUserOverrides);
+            // We do NOT technically import coreCategories from a profile data import unless specified?
+            // Usually profile data import is mostly about words.
+            // But if it's a full restore, maybe?
+            // Let's assume we keep current core categories unless explicitly restoring a ful backup?
+            // Actually, importProfileData is used for "Load Profile" which is partial?
+            // Wait, importProfileData is likely used by import functionality.
+            // If the import has coreCategories, we should probably respect it if it acts as a restore.
+            // However, typical usage might be merging.
+            // Let's stick to SAFER default: Don't overwrite core config on simple data import unless we want to.
+            // Actually, existing logic OVERWRITES tabs. So we should probably overwrite core cats too if present.
+            const newCoreCats = data.coreCategories || state.coreCategories;
+            saveCoreCategories(newCoreCats);
+
             saveTabs(data.tabs, 'tlc_tabs');
             saveTabContent(cleanTabContent, 'tlc_tab_content');
             saveTabs(data.phraseTabs, 'tlc_phrase_tabs');
@@ -650,6 +755,7 @@ export const useStore = create<AppState>((set) => {
 
             return {
                 userOverrides: cleanUserOverrides,
+                coreCategories: newCoreCats,
                 tabs: data.tabs,
                 tabContent: cleanTabContent,
                 phraseTabs: data.phraseTabs,
