@@ -78,7 +78,8 @@ export const EditorModal: React.FC = () => {
                 setLibraryTab('user'); // Switch to user tab to see it
             } catch (err) {
                 console.error("Image processing failed", err);
-                alert("Failed to process image. Try a smaller file.");
+                // @ts-ignore
+                alert(err.message || "Failed to process image. Try a smaller file or different format.");
             }
         }
     };
