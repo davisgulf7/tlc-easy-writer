@@ -625,7 +625,9 @@ export const useStore = create<AppState>((set) => {
                 level: 1,
                 // Ensure editor is closed to prevent zombie state from editor
                 isEditorOpen: false,
-                editingItem: null
+                editingItem: null,
+                // Clear sentence to prevent TTS re-trigger or confusion
+                sentence: []
             };
         }),
 
