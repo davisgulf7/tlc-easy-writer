@@ -407,8 +407,14 @@ export const EditorModal: React.FC = () => {
                                     ) : (
                                         <OpenSymbolsResults query={searchQuery} onSelect={async (url) => {
                                             try {
-                                                // Fetch the image as a blob
-                                                const response = await fetch(url);
+                                                // Fetch the image as a blob using a CORS proxy to bypass S3 restrictions
+                                                // We use corsproxy.io (public) or we could set up our own.
+                                                // For a client-side only app, this is a common workaround.
+                                                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+
+                                                const response = await fetch(proxyUrl);
+                                                if (!response.ok) throw new Error("Network response was not ok");
+
                                                 const blob = await response.blob();
                                                 const file = new File([blob], "symbol.png", { type: blob.type });
 
@@ -421,7 +427,7 @@ export const EditorModal: React.FC = () => {
                                                 setLibraryTab('user'); // Switch to user tab to show it's saved
                                             } catch (err) {
                                                 console.error(err);
-                                                alert("Failed to download symbol.");
+                                                alert("Failed to download symbol. It might be protected.");
                                             }
                                         }} />
                                     )}
