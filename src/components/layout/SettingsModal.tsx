@@ -168,15 +168,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                                     <button
                                                         onClick={() => {
                                                             // DOWNLOAD SPECIFIC PROFILE
-                                                            const blob = new Blob([JSON.stringify(profile.data, null, 2)], { type: 'application/json' });
-                                                            const url = URL.createObjectURL(blob);
-                                                            const a = document.createElement('a');
-                                                            a.href = url;
-                                                            a.download = `tlc_profile_${profile.name.replace(/\s+/g, '_')}_${new Date(profile.timestamp).toISOString().split('T')[0]}.json`;
-                                                            document.body.appendChild(a);
-                                                            a.click();
-                                                            document.body.removeChild(a);
-                                                            URL.revokeObjectURL(url);
+                                                            // Prompt for name
+                                                            const defaultName = `tlc_profile_${profile.name.replace(/\s+/g, '_')}_${new Date(profile.timestamp).toISOString().split('T')[0]}`;
+                                                            const fileName = window.prompt("Enter a name for this export file:", defaultName);
+
+                                                            if (fileName) {
+                                                                const blob = new Blob([JSON.stringify(profile.data, null, 2)], { type: 'application/json' });
+                                                                const url = URL.createObjectURL(blob);
+                                                                const a = document.createElement('a');
+                                                                a.href = url;
+                                                                // Ensure .json extension
+                                                                a.download = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
+                                                                document.body.appendChild(a);
+                                                                a.click();
+                                                                document.body.removeChild(a);
+                                                                URL.revokeObjectURL(url);
+                                                            }
                                                         }}
                                                         className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-md hover:bg-blue-200 font-bold flex items-center gap-1"
                                                     >
@@ -217,24 +224,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => {
-                                            // Gather Data
-                                            const { userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary } = useStore.getState();
-                                            const exportData: Profile['data'] = {
-                                                userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary
-                                            };
+                                            // Prompt for name
+                                            const defaultName = `tlc_current_${new Date().toISOString().split('T')[0]}`;
+                                            const fileName = window.prompt("Enter a name for this export file:", defaultName);
 
-                                            // Create Blob
-                                            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                                            const url = URL.createObjectURL(blob);
+                                            if (fileName) {
+                                                // Gather Data
+                                                const { userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary } = useStore.getState();
+                                                const exportData: Profile['data'] = {
+                                                    userOverrides, tabs, tabContent, phraseTabs, phraseContent, ttsConfig, themeConfig, userLibrary
+                                                };
 
-                                            // Download
-                                            const a = document.createElement('a');
-                                            a.href = url;
-                                            a.download = `tlc_current_${new Date().toISOString().split('T')[0]}.json`;
-                                            document.body.appendChild(a);
-                                            a.click();
-                                            document.body.removeChild(a);
-                                            URL.revokeObjectURL(url);
+                                                // Create Blob
+                                                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                                                const url = URL.createObjectURL(blob);
+
+                                                // Download
+                                                const a = document.createElement('a');
+                                                a.href = url;
+                                                // Ensure .json extension
+                                                a.download = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
+                                                document.body.appendChild(a);
+                                                a.click();
+                                                document.body.removeChild(a);
+                                                URL.revokeObjectURL(url);
+                                            }
                                         }}
                                         className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors border border-slate-300 flex items-center justify-center gap-2"
                                     >
